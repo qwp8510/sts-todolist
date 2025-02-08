@@ -1,0 +1,40 @@
+version: "3"
+
+services:
+  postgres:
+    image: postgres:13
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: abc123
+      POSTGRES_DB: postgres
+    volumes:
+      - sts-db-data:/var/lib/postgresql/data
+    ports:
+      - "54322:5432"
+    healthcheck:
+      test: ["CMD", "pg_isready", "-q", "-d", "postgres", "-U", "postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - sts-proxy
+
+  pgweb:
+    image: sosedoff/pgweb:latest
+    restart: always
+    environment:
+      DATABASE_URL: "postgres://postgres:abc123@postgres:5432/postgres?sslmode=disable"
+    ports:
+      - "8989:8081"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - sts-proxy
+
+volumes:
+  sts-db-data:
+networks:
+  sts-proxy:
+    driver: bridge
