@@ -1,6 +1,6 @@
 import { Injectable, Inject, NotFoundException } from '@nestjs/common';
-import { ITaskAssigneeRepository, ITaskAssigneeService, ITaskHistoryRepository, ITaskHistoryService, ITaskRepository, ITaskService } from './interface';
-import { Task, TaskAssignee, TaskHistory } from './model';
+import { ITaskAssigneeRepository, ITaskAssigneeService, ITaskHistoryRepository, ITaskHistoryService, ITaskRepository, ITaskService, ITaskWatcherRepository, ITaskWatcherService } from './interface';
+import { Task, TaskAssignee, TaskHistory, TaskWatcher } from './model';
 
 
 @Injectable()
@@ -101,5 +101,38 @@ export class TaskHistoryService implements ITaskHistoryService {
 
   async create(history: TaskHistory): Promise<TaskHistory> {
     return this.repo.create(history);
+  }
+}
+
+@Injectable()
+export class TaskWatcherService implements ITaskWatcherService {
+  constructor(
+    @Inject('ITaskWatcherRepository')
+    private readonly repo: ITaskWatcherRepository,
+  ) {}
+
+  async getById(id: number): Promise<TaskWatcher> {
+    return this.repo.findById(id);
+  }
+
+  async getByTask(taskId: number): Promise<TaskWatcher[]> {
+    return this.repo.findByTask(taskId);
+  }
+
+  async getByUser(userId: number): Promise<TaskWatcher[]> {
+    return this.repo.findByUser(userId);
+  }
+
+  async create(watcher: TaskWatcher): Promise<TaskWatcher> {
+    // TODO: check watcher exist
+    return this.repo.create(watcher);
+  }
+
+  async update(watcher: TaskWatcher): Promise<TaskWatcher> {
+    return this.repo.update(watcher);
+  }
+
+  async delete(id: number): Promise<void> {
+    return this.repo.delete(id);
   }
 }

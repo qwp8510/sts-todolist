@@ -1,4 +1,4 @@
-import { Task, TaskAssignee, TaskHistory } from "./model";
+import { Task, TaskAssignee, TaskHistory, TaskWatcher } from "./model";
 
 
 export interface ITaskRepository {
@@ -53,4 +53,22 @@ export interface ITaskHistoryService {
   getById(id: number): Promise<TaskHistory>;
   getByTaskId(taskId: number): Promise<TaskHistory[]>;
   create(history: TaskHistory): Promise<TaskHistory>;
+}
+
+export interface ITaskWatcherRepository {
+  findById(id: number): Promise<TaskWatcher>;
+  findByTask(taskId: number): Promise<TaskWatcher[]>;
+  findByUser(userId: number): Promise<TaskWatcher[]>;
+  create(watcher: TaskWatcher): Promise<TaskWatcher>;
+  update(watcher: TaskWatcher): Promise<TaskWatcher>;
+  delete(id: number): Promise<void>;
+}
+
+export interface ITaskWatcherService {
+  getById(id: number): Promise<TaskWatcher>;
+  getByTask(taskId: number): Promise<TaskWatcher[]>;
+  getByUser(userId: number): Promise<TaskWatcher[]>;
+  create(watcher: TaskWatcher): Promise<TaskWatcher>;
+  update(watcher: TaskWatcher): Promise<TaskWatcher>;
+  delete(id: number): Promise<void>;
 }

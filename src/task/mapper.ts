@@ -1,5 +1,5 @@
-import { TaskAssigneeEntity, TaskEntity, TaskHistoryEntity } from "./entity";
-import { Task, TaskAssignee, TaskHistory } from "./model";
+import { TaskAssigneeEntity, TaskEntity, TaskHistoryEntity, TaskWatcherEntity } from "./entity";
+import { Task, TaskAssignee, TaskHistory, TaskWatcher } from "./model";
 
 export class TaskMapper {
   static toDomain(entity: TaskEntity): Task {
@@ -82,6 +82,29 @@ export class TaskHistoryMapper {
     entity.oldValue = domain.oldValue;
     entity.newValue = domain.newValue;
     entity.comment = domain.comment;
+    entity.createdAt = domain.createdAt;
+    entity.updatedAt = domain.updatedAt;
+    return entity;
+  }
+}
+
+export class TaskWatcherMapper {
+  static toDomain(entity: TaskWatcherEntity): TaskWatcher {
+    if (!entity) return null;
+    return new TaskWatcher(
+      entity.id,
+      entity.task?.id,
+      entity.user?.id,
+      entity.createdAt,
+      entity.updatedAt,
+    );
+  }
+
+  static toEntity(domain: TaskWatcher): TaskWatcherEntity {
+    const entity = new TaskWatcherEntity();
+    entity.id = domain.id;
+    entity.task = { id: domain.taskId } as any;
+    entity.user = { id: domain.userId } as any;
     entity.createdAt = domain.createdAt;
     entity.updatedAt = domain.updatedAt;
     return entity;

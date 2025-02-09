@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { ITaskAssigneeRepository, ITaskHistoryRepository, ITaskRepository } from './interface';
-import { TaskAssigneeEntity, TaskEntity, TaskHistoryEntity } from './entity';
-import { Task, TaskAssignee, TaskHistory } from './model';
-import { TaskAssigneeMapper, TaskHistoryMapper, TaskMapper } from './mapper';
+import { ITaskAssigneeRepository, ITaskHistoryRepository, ITaskRepository, ITaskWatcherRepository } from './interface';
+import { TaskAssigneeEntity, TaskEntity, TaskHistoryEntity, TaskWatcherEntity } from './entity';
+import { Task, TaskAssignee, TaskHistory, TaskWatcher } from './model';
+import { TaskAssigneeMapper, TaskHistoryMapper, TaskMapper, TaskWatcherMapper } from './mapper';
 
 @Injectable()
 export class TaskRepository implements ITaskRepository {
@@ -138,5 +138,53 @@ export class TaskHistoryRepository implements ITaskHistoryRepository {
     const toSave = TaskHistoryMapper.toEntity(history);
     const saved = await this.ormRepo.save(toSave);
     return TaskHistoryMapper.toDomain(saved);
+  }
+}
+
+@Injectable()
+export class TaskWatcherRepository implements ITaskWatcherRepository {
+  constructor(
+    @InjectRepository(TaskWatcherEntity)
+    private readonly ormRepo: Repository<TaskWatcherEntity>,
+  ) {}
+
+  async findById(id: number): Promise<TaskWatcher> {
+    const entity = await this.ormRepo.findOne({
+      where: { id },
+      relations: ['task', 'user'],
+    });
+    return TaskWatcherMapper.toDomain(entity);
+  }
+
+  async findByTask(taskId: number): Promise<TaskWatcher[]> {
+    const entities = await this.ormRepo.find({
+      where: { task: { id: taskId } },
+      relations: ['task', 'user'],
+    });
+    return entities.map(TaskWatcherMapper.toDomain);
+  }
+
+  async findByUser(userId: number): Promise<TaskWatcher[]> {
+    const entities = await this.ormRepo.find({
+      where: { user: { id: userId } },
+      relations: ['task', 'user'],
+    });
+    return entities.map(TaskWatcherMapper.toDomain);
+  }
+
+  async create(domain: TaskWatcher): Promise<TaskWatcher> {
+    const toSave = TaskWatcherMapper.toEntity(domain);
+    const saved = await this.ormRepo.save(toSave);
+    return TaskWatcherMapper.toDomain(saved);
+  }
+
+  async update(domain: TaskWatcher): Promise<TaskWatcher> {
+    const toUpdate = TaskWatcherMapper.toEntity(domain);
+    const updated = await this.ormRepo.save(toUpdate);
+    return TaskWatcherMapper.toDomain(updated);
+  }
+
+  async delete(id: number): Promise<void> {
+    await this.ormRepo.delete(id);
   }
 }

@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { TaskAssigneeEntity, TaskEntity, TaskHistoryEntity } from './entity';
-import { TaskAssigneeRepository, TaskHistoryRepository, TaskRepository } from './repo';
-import { TaskAssigneeService, TaskHistoryService, TaskService } from './service';
+import { TaskAssigneeEntity, TaskEntity, TaskHistoryEntity, TaskWatcherEntity } from './entity';
+import { TaskAssigneeRepository, TaskHistoryRepository, TaskRepository, TaskWatcherRepository } from './repo';
+import { TaskAssigneeService, TaskHistoryService, TaskService, TaskWatcherService } from './service';
 
 @Module({
   imports: [
@@ -10,6 +10,7 @@ import { TaskAssigneeService, TaskHistoryService, TaskService } from './service'
       TaskEntity,
       TaskAssigneeEntity,
       TaskHistoryEntity,
+      TaskWatcherEntity,
     ]),
   ],
   providers: [
@@ -37,10 +38,20 @@ import { TaskAssigneeService, TaskHistoryService, TaskService } from './service'
       provide: 'ITaskHistoryService',
       useClass: TaskHistoryService,
     },
+    {
+      provide: 'ITaskWatcherRepository',
+      useClass: TaskWatcherRepository,
+    },
+    {
+      provide: 'ITaskWatcherService',
+      useClass: TaskWatcherService,
+    },
   ],
   exports: [
     'ITaskService',
     'ITaskAssigneeService',
+    'ITaskHistoryService',
+    'ITaskWatcherService',
   ],
 })
 export class TaskModule {}
