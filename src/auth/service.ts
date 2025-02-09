@@ -1,6 +1,7 @@
 import { Injectable, Inject, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import { ClientException } from 'src/errors';
 import { IUserService } from 'src/user/interface';
 import { User } from 'src/user/model';
 
@@ -38,13 +39,13 @@ export class AuthService {
   async login(username: string, password: string): Promise<{ token: string; user: User }> {
     const user = await this.userService.getUserByUsername(username);
     if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new ClientException("user_not_exist", 'user not exist');
     }
 
     // Compares the password (original password and hashed password)
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new ClientException("password_error", 'password error');
     }
     const payload = { sub: user.id, userID: user.id, username: user.username };
     const token = this.jwtService.sign(payload);
