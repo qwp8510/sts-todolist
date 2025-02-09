@@ -1,4 +1,4 @@
-import { Task, TaskAssignee } from "./model";
+import { Task, TaskAssignee, TaskHistory } from "./model";
 
 
 export interface ITaskRepository {
@@ -41,4 +41,16 @@ export interface ITaskAssigneeService {
   create(assignee: TaskAssignee): Promise<TaskAssignee>;
   update(assignee: TaskAssignee): Promise<TaskAssignee>;
   delete(id: number): Promise<void>;
+}
+
+export interface ITaskHistoryRepository {
+  findById(id: number): Promise<TaskHistory>;
+  findByTaskId(taskId: number): Promise<TaskHistory[]>;
+  create(history: TaskHistory): Promise<TaskHistory>;
+}
+
+export interface ITaskHistoryService {
+  getById(id: number): Promise<TaskHistory>;
+  getByTaskId(taskId: number): Promise<TaskHistory[]>;
+  create(history: TaskHistory): Promise<TaskHistory>;
 }

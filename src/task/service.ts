@@ -1,6 +1,6 @@
 import { Injectable, Inject, NotFoundException } from '@nestjs/common';
-import { ITaskAssigneeRepository, ITaskAssigneeService, ITaskRepository, ITaskService } from './interface';
-import { Task, TaskAssignee } from './model';
+import { ITaskAssigneeRepository, ITaskAssigneeService, ITaskHistoryRepository, ITaskHistoryService, ITaskRepository, ITaskService } from './interface';
+import { Task, TaskAssignee, TaskHistory } from './model';
 
 
 @Injectable()
@@ -81,5 +81,25 @@ export class TaskAssigneeService implements ITaskAssigneeService {
 
   async delete(id: number): Promise<void> {
     return this.repo.delete(id);
+  }
+}
+
+@Injectable()
+export class TaskHistoryService implements ITaskHistoryService {
+  constructor(
+    @Inject('ITaskHistoryRepository')
+    private readonly repo: ITaskHistoryRepository,
+  ) {}
+
+  async getById(id: number): Promise<TaskHistory> {
+    return this.repo.findById(id);
+  }
+
+  async getByTaskId(taskId: number): Promise<TaskHistory[]> {
+    return this.repo.findByTaskId(taskId);
+  }
+
+  async create(history: TaskHistory): Promise<TaskHistory> {
+    return this.repo.create(history);
   }
 }

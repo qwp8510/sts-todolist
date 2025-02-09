@@ -1,12 +1,16 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { TaskEntity } from './entity';
-import { TaskAssigneeRepository, TaskRepository } from './repo';
-import { TaskAssigneeService, TaskService } from './service';
+import { TaskAssigneeEntity, TaskEntity, TaskHistoryEntity } from './entity';
+import { TaskAssigneeRepository, TaskHistoryRepository, TaskRepository } from './repo';
+import { TaskAssigneeService, TaskHistoryService, TaskService } from './service';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([TaskEntity]),
+    TypeOrmModule.forFeature([
+      TaskEntity,
+      TaskAssigneeEntity,
+      TaskHistoryEntity,
+    ]),
   ],
   providers: [
     {
@@ -24,6 +28,14 @@ import { TaskAssigneeService, TaskService } from './service';
     {
       provide: 'ITaskAssigneeService',
       useClass: TaskAssigneeService,
+    },
+    {
+      provide: 'ITaskHistoryRepository',
+      useClass: TaskHistoryRepository,
+    },
+    {
+      provide: 'ITaskHistoryService',
+      useClass: TaskHistoryService,
     },
   ],
   exports: [

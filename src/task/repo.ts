@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { ITaskAssigneeRepository, ITaskRepository } from './interface';
-import { TaskAssigneeEntity, TaskEntity } from './entity';
-import { Task, TaskAssignee } from './model';
-import { TaskAssigneeMapper, TaskMapper } from './mapper';
+import { ITaskAssigneeRepository, ITaskHistoryRepository, ITaskRepository } from './interface';
+import { TaskAssigneeEntity, TaskEntity, TaskHistoryEntity } from './entity';
+import { Task, TaskAssignee, TaskHistory } from './model';
+import { TaskAssigneeMapper, TaskHistoryMapper, TaskMapper } from './mapper';
 
 @Injectable()
 export class TaskRepository implements ITaskRepository {
@@ -107,5 +107,36 @@ export class TaskAssigneeRepository implements ITaskAssigneeRepository {
 
   async delete(id: number): Promise<void> {
     await this.ormRepo.delete(id);
+  }
+}
+
+@Injectable()
+export class TaskHistoryRepository implements ITaskHistoryRepository {
+  constructor(
+    @InjectRepository(TaskHistoryEntity)
+    private readonly ormRepo: Repository<TaskHistoryEntity>,
+  ) {}
+
+  async findById(id: number): Promise<TaskHistory> {
+    const entity = await this.ormRepo.findOne({
+      where: { id },
+      relations: ['task', 'user'],
+    });
+    return TaskHistoryMapper.toDomain(entity);
+  }
+
+  async findByTaskId(taskId: number): Promise<TaskHistory[]> {
+    const entities = await this.ormRepo.find({
+      where: { task: { id: taskId } },
+      relations: ['task', 'user'],
+      order: { createdAt: 'ASC' },
+    });
+    return entities.map(TaskHistoryMapper.toDomain);
+  }
+
+  async create(history: TaskHistory): Promise<TaskHistory> {
+    const toSave = TaskHistoryMapper.toEntity(history);
+    const saved = await this.ormRepo.save(toSave);
+    return TaskHistoryMapper.toDomain(saved);
   }
 }

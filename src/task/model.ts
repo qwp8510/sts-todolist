@@ -80,3 +80,48 @@ export class TaskAssignee {
   get createdAt() { return this._createdAt; }
   get updatedAt() { return this._updatedAt; }
 }
+
+export class TaskHistory {
+  private _id: number;
+  private _taskId: number;
+  private _userId: number | null;
+  private _action: string;
+  private _oldValue?: string;
+  private _newValue?: string;
+  private _comment?: string;
+  private _createdAt: Date;
+  private _updatedAt: Date;
+
+  constructor(
+    id: number,
+    taskId: number,
+    userId: number | null,
+    action: string,
+    oldValue?: string,
+    newValue?: string,
+    comment?: string,
+    createdAt?: Date,
+    updatedAt?: Date,
+  ) {
+    this._id = id;
+    this._taskId = taskId;
+    this._userId = userId;
+    this._action = action;
+    this._oldValue = oldValue;
+    this._newValue = newValue;
+    this._comment = comment;
+    this._createdAt = createdAt || new Date();
+    this._updatedAt = updatedAt || new Date();
+  }
+
+  // Getter
+  get id() { return this._id; }
+  get taskId() { return this._taskId; }
+  get userId() { return this._userId; }
+  get action() { return this._action; }
+  get oldValue() { return this._oldValue; }
+  get newValue() { return this._newValue; }
+  get comment() { return this._comment; }
+  get createdAt() { return this._createdAt; }
+  get updatedAt() { return this._updatedAt; }
+}
