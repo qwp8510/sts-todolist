@@ -31,4 +31,11 @@ export class User {
   set password(newPassword: string) {
     this._password = bcrypt.hashSync(newPassword, 10);
   }
+
+  public toResponse(): Partial<User> {
+    return {
+      id: this._id,
+      username: this._username,
+    };
+  }
 }

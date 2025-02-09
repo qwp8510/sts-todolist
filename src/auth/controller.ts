@@ -7,11 +7,19 @@ export class AuthController {
 
   @Post('register')
   async register(@Body() body: { username: string; password: string }) {
-    return this.authService.register(body.username, body.password);
+    const result = await this.authService.register(body.username, body.password);
+    return {
+      token: result.token,
+      user: result.user.toResponse(),
+    }
   }
 
   @Post('login')
   async login(@Body() body: { email: string; password: string }) {
-    return this.authService.login(body.email, body.password);
+    const result = await this.authService.login(body.email, body.password);
+    return {
+      token: result.token,
+      user: result.user.toResponse(),
+    }
   }
 }
