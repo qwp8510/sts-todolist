@@ -33,8 +33,6 @@ export class TaskHistoryController {
       dto.taskId,
       dto.userId ?? null,
       dto.action,
-      dto.oldValue,
-      dto.newValue,
       dto.comment,
     );
     return this.taskHistoryService.create(history);
