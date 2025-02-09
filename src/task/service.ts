@@ -1,6 +1,6 @@
 import { Injectable, Inject, NotFoundException } from '@nestjs/common';
-import { ITaskRepository, ITaskService } from './interface';
-import { Task } from './model';
+import { ITaskAssigneeRepository, ITaskAssigneeService, ITaskRepository, ITaskService } from './interface';
+import { Task, TaskAssignee } from './model';
 
 
 @Injectable()
@@ -48,5 +48,38 @@ export class TaskService implements ITaskService {
     task.completeTask();
 
     return this.taskRepo.update(task);
+  }
+}
+
+@Injectable()
+export class TaskAssigneeService implements ITaskAssigneeService {
+  constructor(
+    @Inject('ITaskAssigneeRepository')
+    private readonly repo: ITaskAssigneeRepository,
+  ) {}
+
+  async getById(id: number): Promise<TaskAssignee> {
+    return this.repo.findById(id);
+  }
+
+  async getByTask(taskId: number): Promise<TaskAssignee[]> {
+    return this.repo.findByTask(taskId);
+  }
+
+  async getByUser(userId: number): Promise<TaskAssignee[]> {
+    return this.repo.findByUser(userId);
+  }
+
+  async create(assignee: TaskAssignee): Promise<TaskAssignee> {
+    // TODO: check user was assigned
+    return this.repo.create(assignee);
+  }
+
+  async update(assignee: TaskAssignee): Promise<TaskAssignee> {
+    return this.repo.update(assignee);
+  }
+
+  async delete(id: number): Promise<void> {
+    return this.repo.delete(id);
   }
 }

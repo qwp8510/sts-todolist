@@ -51,3 +51,32 @@ export class Task {
     this._updatedAt = new Date();
   }
 }
+
+export class TaskAssignee {
+  private _id: number;
+  private _taskId: number;
+  private _userId: number;
+  private _createdAt: Date;
+  private _updatedAt: Date;
+
+  constructor(
+    id: number,
+    taskId: number,
+    userId: number,
+    createdAt?: Date,
+    updatedAt?: Date,
+  ) {
+    this._id = id;
+    this._taskId = taskId;
+    this._userId = userId;
+    this._createdAt = createdAt || new Date();
+    this._updatedAt = updatedAt || new Date();
+  }
+
+  // Getter
+  get id() { return this._id; }
+  get taskId() { return this._taskId; }
+  get userId() { return this._userId; }
+  get createdAt() { return this._createdAt; }
+  get updatedAt() { return this._updatedAt; }
+}
