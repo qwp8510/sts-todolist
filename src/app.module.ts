@@ -1,10 +1,9 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { TasksModule } from './task/module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DB_HOST, DB_NAME, DB_PORT, DB_PWD, DB_USERNAME } from './config';
-import { Task } from './task/entity';
+import { TaskModule } from './task/module';
+import { TeamModule } from './team/module';
+import { UserModule } from './user/module';
 
 process.env.TZ = 'UTC';
 
@@ -17,8 +16,7 @@ process.env.TZ = 'UTC';
       username: DB_USERNAME,
       password: DB_PWD,
       database: DB_NAME,
-      entities: [Task],
-      // entities: ['**/entity{.ts,.js}'],
+      entities: ['**/entity{.ts,.js}'],
       synchronize: false,
     }),
   ],
@@ -27,10 +25,12 @@ export class DbModule {}
 
 @Module({
   imports: [
-    TasksModule,
     DbModule,
+    TaskModule,
+    TeamModule,
+    UserModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [],
+  providers: [],
 })
 export class AppModule {}
