@@ -1,5 +1,6 @@
 import { TeamEntity, TeamMemberEntity } from "src/team/entity";
 import { Team, TeamMember } from "./model";
+import { UserMapper } from "src/user/mapper";
 
 
 export class TeamMapper {
@@ -33,6 +34,7 @@ export class TeamMemberMapper {
       entity.role,
       entity.createdAt,
       entity.updatedAt,
+      UserMapper.toDomain(entity.user),
     );
   }
 

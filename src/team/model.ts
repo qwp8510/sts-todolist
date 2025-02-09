@@ -1,8 +1,10 @@
+import { User } from "src/user/model";
+
 export class Team {
-  private _id: number;
-  private _name: string;
-  private _createdAt: Date;
-  private _updatedAt: Date;
+  public id: number;
+  public name: string;
+  public createdAt: Date;
+  public updatedAt: Date;
 
   constructor(
     id: number,
@@ -10,31 +12,26 @@ export class Team {
     createdAt?: Date,
     updatedAt?: Date,
   ) {
-    this._id = id;
-    this._name = name;
-    this._createdAt = createdAt || new Date();
-    this._updatedAt = updatedAt || new Date();
+    this.id = id;
+    this.name = name;
+    this.createdAt = createdAt || new Date();
+    this.updatedAt = updatedAt || new Date();
   }
 
   public changeName(newName: string) {
-    this._name = newName;
-    this._updatedAt = new Date();
+    this.name = newName;
+    this.updatedAt = new Date();
   }
-
-  // Getter
-  get id() { return this._id; }
-  get name() { return this._name; }
-  get createdAt() { return this._createdAt; }
-  get updatedAt() { return this._updatedAt; }
 }
 
 export class TeamMember {
-  private _id: number;
-  private _teamId: number;
-  private _userId: number;
-  private _role: string;
-  private _createdAt: Date;
-  private _updatedAt: Date;
+  public id: number;
+  public teamId: number;
+  public userId: number;
+  public user?: User;
+  public role: string;
+  public createdAt: Date;
+  public updatedAt: Date;
 
   constructor(
     id: number,
@@ -43,26 +40,20 @@ export class TeamMember {
     role: string,
     createdAt?: Date,
     updatedAt?: Date,
+    user?: User,
   ) {
-    this._id = id;
-    this._teamId = teamId;
-    this._userId = userId;
-    this._role = role;
-    this._createdAt = createdAt || new Date();
-    this._updatedAt = updatedAt || new Date();
+    this.id = id;
+    this.teamId = teamId;
+    this.userId = userId;
+    this.user = user;
+    this.role = role;
+    this.createdAt = createdAt || new Date();
+    this.updatedAt = updatedAt || new Date();
   }
 
   public changeRole(newRole: string) {
-    this._role = newRole;
-    this._updatedAt = new Date();
+    this.role = newRole;
+    this.updatedAt = new Date();
   }
-
-  // Getter
-  get id() { return this._id; }
-  get teamId() { return this._teamId; }
-  get userId() { return this._userId; }
-  get role() { return this._role; }
-  get createdAt() { return this._createdAt; }
-  get updatedAt() { return this._updatedAt; }
 }
 
