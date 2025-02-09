@@ -24,6 +24,17 @@ export class TeamRepository implements ITeamRepository {
     return entities.map(TeamMapper.toDomain);
   }
 
+
+  async findAllForUser(userId: number): Promise<Team[]> {
+    const teamEntities = await this.ormRepository
+      .createQueryBuilder('team')
+      .innerJoin('team_members', 'tm', 'tm.teamId = team.id')
+      .where('tm.userId = :userId', { userId })
+      .getMany();
+
+    return teamEntities.map(TeamMapper.toDomain);
+  }
+
   async create(domain: Team): Promise<Team> {
     const entityToCreate = TeamMapper.toEntity(domain);
     const saved = await this.ormRepository.save(entityToCreate);

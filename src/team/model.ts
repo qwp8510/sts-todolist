@@ -55,5 +55,17 @@ export class TeamMember {
     this.role = newRole;
     this.updatedAt = new Date();
   }
+
+  toResponse() {
+    return {
+      id: this.id,
+      teamId: this.teamId,
+      userId: this.userId,
+      user: this.user.toResponse(),
+      role: this.role,
+      createdAt: this.createdAt,
+      updatedAt: this.updatedAt,
+    }
+  }
 }
 

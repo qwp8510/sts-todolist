@@ -3,6 +3,7 @@ import { Team, TeamMember } from "./model";
 export interface ITeamRepository {
   findById(id: number): Promise<Team>;
   findAll(): Promise<Team[]>;
+  findAllForUser(userId: number): Promise<Team[]>;
   create(team: Team): Promise<Team>;
   update(team: Team): Promise<Team>;
   delete(id: number): Promise<void>;
@@ -13,7 +14,12 @@ export interface ITeamService {
   getAllTeams(): Promise<Team[]>;
   createTeam(team: Team): Promise<Team>;
   updateTeam(team: Team): Promise<Team>;
-  deleteTeam(id: number): Promise<void>;
+
+  createTeamForUser(name: string, userId: number): Promise<Team>;
+  getAllTeamsForUser(userId: number): Promise<Team[]>;
+  deleteTeam(teamId: number, userId: number);
+  inviteUser(teamId: number, ownerId: number, username: string);
+  getTeamWithMembers(teamId: number, userId: number): Promise<{ team: Team, members: TeamMember[] }>;
 }
 
 export interface ITeamMemberRepository {
@@ -32,4 +38,6 @@ export interface ITeamMemberService {
   createTeamMember(teamMember: TeamMember): Promise<TeamMember>;
   updateTeamMember(teamMember: TeamMember): Promise<TeamMember>;
   deleteTeamMember(id: number): Promise<void>;
+
+  getTeamMemberByTeamAndUser(teamId: number, userId: number): Promise<TeamMember>
 }
