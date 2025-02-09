@@ -107,14 +107,6 @@ export class TaskHistoryEntity {
   @Column({ length: 50 })
   action: string;
 
-  // Store the value before the change (can use JSON string)
-  @Column({ type: 'text', nullable: true })
-  oldValue: string;
-
-  // Store the value after the change (can use JSON string)
-  @Column({ type: 'text', nullable: true })
-  newValue: string;
-
   // If comment, store the comment content
   @Column({ type: 'text', nullable: true })
   comment: string;

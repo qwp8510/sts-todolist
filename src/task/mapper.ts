@@ -65,8 +65,6 @@ export class TaskHistoryMapper {
       entity.task?.id,
       entity.user?.id ?? null,
       entity.action,
-      entity.oldValue,
-      entity.newValue,
       entity.comment,
       entity.createdAt,
       entity.updatedAt,
@@ -79,8 +77,6 @@ export class TaskHistoryMapper {
     entity.task = { id: domain.taskId } as any;
     entity.user = domain.userId ? ({ id: domain.userId } as any) : null;
     entity.action = domain.action;
-    entity.oldValue = domain.oldValue;
-    entity.newValue = domain.newValue;
     entity.comment = domain.comment;
     entity.createdAt = domain.createdAt;
     entity.updatedAt = domain.updatedAt;
