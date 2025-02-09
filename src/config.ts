@@ -11,3 +11,4 @@ export const DB_USERNAME = process.env.DB_USERNAME || 'postgres';
 export const DB_PWD = process.env.DB_PWD || 'abc123';
 export const DB_NAME = process.env.DB_NAME || 'postgres';
 
+export const SECRET_KEY = process.env.SECRET_KEY || 'secret123456';

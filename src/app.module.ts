@@ -4,6 +4,7 @@ import { DB_HOST, DB_NAME, DB_PORT, DB_PWD, DB_USERNAME } from './config';
 import { TaskModule } from './task/module';
 import { TeamModule } from './team/module';
 import { UserModule } from './user/module';
+import { AuthModule } from './auth/module';
 
 process.env.TZ = 'UTC';
 
@@ -29,6 +30,7 @@ export class DbModule {}
     TaskModule,
     TeamModule,
     UserModule,
+    AuthModule,
   ],
   controllers: [],
   providers: [],
