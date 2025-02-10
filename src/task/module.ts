@@ -3,6 +3,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { TaskAssigneeEntity, TaskEntity, TaskHistoryEntity, TaskWatcherEntity } from './entity';
 import { TaskAssigneeRepository, TaskHistoryRepository, TaskRepository, TaskWatcherRepository } from './repo';
 import { TaskAssigneeService, TaskHistoryService, TaskService, TaskWatcherService } from './service';
+import { TeamModule } from 'src/team/module';
+import { TaskController } from './controller';
 
 @Module({
   imports: [
@@ -12,6 +14,7 @@ import { TaskAssigneeService, TaskHistoryService, TaskService, TaskWatcherServic
       TaskHistoryEntity,
       TaskWatcherEntity,
     ]),
+    TeamModule,
   ],
   providers: [
     {
@@ -53,5 +56,6 @@ import { TaskAssigneeService, TaskHistoryService, TaskService, TaskWatcherServic
     'ITaskHistoryService',
     'ITaskWatcherService',
   ],
+  controllers: [TaskController],
 })
 export class TaskModule {}

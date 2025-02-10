@@ -26,6 +26,9 @@ export class TaskEntity {
   @ManyToOne(() => TeamEntity, team => team.tasks)
   team: TeamEntity;
 
+  @Column({ name: 'team_id', type: 'int' })
+  teamId: number | null;
+
   // Created by user
   @ManyToOne(() => UserEntity, user => user.tasks)
   @JoinColumn({ name: 'creator_id' })
@@ -49,11 +52,11 @@ export class TaskEntity {
   @Column({ type: 'text', nullable: true })
   description: string;
 
-  // Example: 'open', 'in_progress', 'completed', 'archived'
+  // Example: 'open', 'completed', 'archived'
   @Column({ length: 20 })
   status: string;
 
-  @Column({ type: 'timestamp', nullable: true })
+  @Column({ name: 'due_date', type: 'timestamp', nullable: true })
   dueDate: Date;
 
   // Task assignees

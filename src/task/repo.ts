@@ -60,6 +60,67 @@ export class TaskRepository implements ITaskRepository {
   async delete(id: number): Promise<void> {
     await this.ormRepo.delete(id);
   }
+
+
+  async findTasksByFilters(params: {
+    teamId: number;
+    dueDateStart?: Date;
+    dueDateEnd?: Date;
+    creatorId?: number;
+    assigneeId?: number;
+    watcherId?: number;
+    status?: string;
+    sortBy?: string;  // 'createdAt' | 'dueDate' | 'creator'
+    sortOrder?: 'ASC' | 'DESC';
+  }): Promise<Task[]> {
+    const qb = this.ormRepo
+      .createQueryBuilder('task')
+      .where('task.team_id = :teamId', { teamId: params.teamId });
+  
+    if (params.dueDateStart) {
+      qb.andWhere('task.due_date >= :start', { start: params.dueDateStart });
+    }
+    if (params.dueDateEnd) {
+      qb.andWhere('task.due_date <= :end', { end: params.dueDateEnd });
+    }
+  
+    if (params.creatorId) {
+      qb.andWhere('task.creator_id = :creatorId', { creatorId: params.creatorId });
+    }
+  
+    if (params.assigneeId) {
+      // JOIN task_assignees
+      qb.innerJoin('task_assignees', 'ta', 'ta.task_id = task.id')
+        .andWhere('ta.user_id = :assigneeId', { assigneeId: params.assigneeId });
+    }
+  
+    if (params.watcherId) {
+      // JOIN task_watchers
+      qb.innerJoin('task_watchers', 'tw', 'tw.task_id = task.id')
+        .andWhere('tw.user_id = :watcherId', { watcherId: params.watcherId });
+    }
+  
+    if (params.status) {
+      qb.andWhere('task.status = :status', { status: params.status });
+    }
+  
+    // sort
+    let orderField: string;
+    switch (params.sortBy) {
+      case 'dueDate':
+        orderField = 'task.due_date';
+        break;
+      case 'creator':
+        orderField = 'task.creator_id';
+        break;
+      default:
+        orderField = 'task.created_at';
+    }
+    qb.orderBy(orderField, params.sortOrder);
+  
+    const entities = await qb.getMany();
+    return entities.map(TaskMapper.toDomain);
+  }
 }
 
 @Injectable()
@@ -107,6 +168,14 @@ export class TaskAssigneeRepository implements ITaskAssigneeRepository {
 
   async delete(id: number): Promise<void> {
     await this.ormRepo.delete(id);
+  }
+
+  async findOneByTaskAndUser(taskId: number, userId: number): Promise<TaskAssignee> {
+    const entity = await this.ormRepo.findOne({
+      where: { task: { id: taskId }, user: { id: userId } },
+      relations: ['task', 'user'],
+    });
+    return TaskAssigneeMapper.toDomain(entity);
   }
 }
 
@@ -186,5 +255,13 @@ export class TaskWatcherRepository implements ITaskWatcherRepository {
 
   async delete(id: number): Promise<void> {
     await this.ormRepo.delete(id);
+  }
+
+  async findOneByTaskAndUser(taskId: number, userId: number): Promise<TaskWatcher> {
+    const entity = await this.ormRepo.findOne({
+      where: { task: { id: taskId }, user: { id: userId } },
+      relations: ['task', 'user'],
+    });
+    return TaskWatcherMapper.toDomain(entity);
   }
 }

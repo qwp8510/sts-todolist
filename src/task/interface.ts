@@ -10,6 +10,17 @@ export interface ITaskRepository {
   delete(id: number): Promise<void>;
 
   findByParentId(parentId: number): Promise<Task[]>;
+  findTasksByFilters(params: {
+    teamId: number;
+    dueDateStart?: Date;
+    dueDateEnd?: Date;
+    creatorId?: number;
+    assigneeId?: number;
+    watcherId?: number;
+    status?: string;
+    sortBy?: string;
+    sortOrder?: 'ASC' | 'DESC';
+  }): Promise<Task[]> 
 }
 
 export interface ITaskService {
@@ -18,11 +29,45 @@ export interface ITaskService {
   getTasksByCreator(creatorId: number): Promise<Task[]>;
   getSubTasks(parentId: number): Promise<Task[]>;
 
-  createTask(task: Task): Promise<Task>;
-  updateTask(task: Task): Promise<Task>;
-  deleteTask(id: number): Promise<void>;
-
-  completeTask(id: number): Promise<Task>;
+  createTask(input: {
+    teamId: number;
+    creatorId: number;
+    parentTaskId?: number;
+    title: string;
+    description?: string;
+    dueDate?: Date;
+  }): Promise<Task>;
+  updateTask(
+    taskId: number,
+    userId: number,
+    updateData: {
+      title?: string;
+      description?: string;
+      dueDate?: string;
+      addAssignees?: number[];
+      removeAssignees?: number[];
+      addWatchers?: number[];
+      removeWatchers?: number[];
+      status?: string;
+      comment?: string;
+    },
+  ): Promise<void>;
+  getTasks(input: {
+    userId: number;
+    teamId: number;
+    dueDateStart?: Date;
+    dueDateEnd?: Date;
+    creatorId?: number;
+    assigneeId?: number;
+    watcherId?: number;
+    status?: string;
+    sortBy?: string;
+    sortOrder?: 'ASC' | 'DESC';
+  }): Promise<Task[]>
+  getTaskDetail(
+    taskId: number, userId: number,
+  ): Promise<{task: Task, children: Task[], assignees: TaskAssignee[], watchers: TaskWatcher[], history: TaskHistory[]}>;
+  deleteTask(taskId: number, userId: number): Promise<void>;
 }
 
 export interface ITaskAssigneeRepository {
@@ -32,6 +77,8 @@ export interface ITaskAssigneeRepository {
   create(entity: TaskAssignee): Promise<TaskAssignee>;
   update(entity: TaskAssignee): Promise<TaskAssignee>;
   delete(id: number): Promise<void>;
+
+  findOneByTaskAndUser(taskId: number, userId: number): Promise<TaskAssignee>;
 }
 
 export interface ITaskAssigneeService {
@@ -41,6 +88,9 @@ export interface ITaskAssigneeService {
   create(assignee: TaskAssignee): Promise<TaskAssignee>;
   update(assignee: TaskAssignee): Promise<TaskAssignee>;
   delete(id: number): Promise<void>;
+
+  createAssigneeIfNotExist(taskId: number, userId: number): Promise<void>;
+  removeAssigneeIfExist(taskId: number, userId: number): Promise<void>;
 }
 
 export interface ITaskHistoryRepository {
@@ -62,6 +112,8 @@ export interface ITaskWatcherRepository {
   create(watcher: TaskWatcher): Promise<TaskWatcher>;
   update(watcher: TaskWatcher): Promise<TaskWatcher>;
   delete(id: number): Promise<void>;
+
+  findOneByTaskAndUser(taskId: number, userId: number): Promise<TaskWatcher>;
 }
 
 export interface ITaskWatcherService {
@@ -71,4 +123,7 @@ export interface ITaskWatcherService {
   create(watcher: TaskWatcher): Promise<TaskWatcher>;
   update(watcher: TaskWatcher): Promise<TaskWatcher>;
   delete(id: number): Promise<void>;
+
+  createWatcherIfNotExist(taskId: number, userId: number): Promise<void>;
+  removeWatcherIfExist(taskId: number, userId: number): Promise<void>;
 }
