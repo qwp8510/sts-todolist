@@ -22,12 +22,13 @@ export class TaskEntity {
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 
+  @Column({ name: 'team_id', type: 'int' })
+  teamId: number;
+
   // Belongs to team
   @ManyToOne(() => TeamEntity, team => team.tasks)
+  @JoinColumn({ name: 'team_id' })
   team: TeamEntity;
-
-  @Column({ name: 'team_id', type: 'int' })
-  teamId: number | null;
 
   // Created by user
   @ManyToOne(() => UserEntity, user => user.tasks)
