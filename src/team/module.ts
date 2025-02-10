@@ -5,7 +5,6 @@ import { TeamMemberRepository, TeamRepository } from './repo';
 import { TeamMemberService, TeamService } from './service';
 import { UserModule } from 'src/user/module';
 import { TeamController } from './controller';
-import { TeamMemberController } from './member.controller';
 
 @Module({
   imports: [
@@ -31,7 +30,7 @@ import { TeamMemberController } from './member.controller';
       useClass: TeamMemberService,
     },
   ],
-  controllers: [TeamController, TeamMemberController],
+  controllers: [TeamController],
   exports: [
     'ITeamService',
     'ITeamMemberService',
