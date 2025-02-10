@@ -20,7 +20,6 @@ import { UserEntity } from './entity';
   ],
   exports: [
     'IUserService',
-    'IUserRepository',
   ],
 })
 export class UserModule {}
