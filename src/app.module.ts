@@ -5,6 +5,9 @@ import { TaskModule } from './task/module';
 import { TeamModule } from './team/module';
 import { UserModule } from './user/module';
 import { AuthModule } from './auth/module';
+import { TaskAssigneeEntity, TaskEntity, TaskHistoryEntity, TaskWatcherEntity } from './task/entity';
+import { TeamEntity, TeamMemberEntity } from './team/entity';
+import { UserEntity } from './user/entity';
 
 process.env.TZ = 'UTC';
 
@@ -17,7 +20,15 @@ process.env.TZ = 'UTC';
       username: DB_USERNAME,
       password: DB_PWD,
       database: DB_NAME,
-      entities: ['**/entity{.ts,.js}'],
+      entities: [
+        TaskEntity,
+        TaskAssigneeEntity,
+        TaskWatcherEntity,
+        TaskHistoryEntity,
+        TeamMemberEntity,
+        TeamEntity,
+        UserEntity,
+      ],
       synchronize: false,
     }),
   ],
