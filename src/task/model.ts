@@ -1,3 +1,5 @@
+import { User } from "src/user/model";
+
 export class Task {
   public id: number;
   public teamId: number;
@@ -44,6 +46,7 @@ export class TaskAssignee {
   public id: number;
   public taskId: number;
   public userId: number;
+  public user?: User;
   public createdAt: Date;
   public updatedAt: Date;
 
@@ -53,12 +56,25 @@ export class TaskAssignee {
     userId: number,
     createdAt?: Date,
     updatedAt?: Date,
+    user?: User,
   ) {
     this.id = id;
     this.taskId = taskId;
     this.userId = userId;
+    this.user = user;
     this.createdAt = createdAt || new Date();
     this.updatedAt = updatedAt || new Date();
+  }
+
+  toResponse() {
+    return {
+      id: this.id,
+      taskId: this.taskId,
+      userId: this.userId,
+      user: this.user.toResponse(),
+      createdAt: this.createdAt,
+      updatedAt: this.updatedAt,
+    }
   }
 }
 
@@ -66,6 +82,7 @@ export class TaskHistory {
   public id: number;
   public taskId: number;
   public userId: number | null;
+  public user?: User;
   public action: string;
   public comment?: string;
   public createdAt: Date;
@@ -79,14 +96,29 @@ export class TaskHistory {
     comment?: string,
     createdAt?: Date,
     updatedAt?: Date,
+    user?: User,
   ) {
     this.id = id;
     this.taskId = taskId;
     this.userId = userId;
+    this.user = user;
     this.action = action;
     this.comment = comment;
     this.createdAt = createdAt || new Date();
     this.updatedAt = updatedAt || new Date();
+  }
+
+  toResponse() {
+    return {
+      id: this.id,
+      taskId: this.taskId,
+      userId: this.userId,
+      user: this.user?.toResponse() || null,
+      action: this.action,
+      comment: this.comment,
+      createdAt: this.createdAt,
+      updatedAt: this.updatedAt,
+    }
   }
 }
 
@@ -94,6 +126,7 @@ export class TaskWatcher {
   public id: number;
   public taskId: number;
   public userId: number;
+  public user?: User;
   public createdAt: Date;
   public updatedAt: Date;
 
@@ -103,11 +136,24 @@ export class TaskWatcher {
     userId: number,
     createdAt?: Date,
     updatedAt?: Date,
+    user?: User,
   ) {
     this.id = id;
     this.taskId = taskId;
     this.userId = userId;
+    this.user = user;
     this.createdAt = createdAt || new Date();
     this.updatedAt = updatedAt || new Date();
+  }
+
+  toResponse() {
+    return {
+      id: this.id,
+      taskId: this.taskId,
+      userId: this.userId,
+      user: this.user?.toResponse() || null,
+      createdAt: this.createdAt,
+      updatedAt: this.updatedAt,
+    }
   }
 }

@@ -1,3 +1,4 @@
+import { UserMapper } from "src/user/mapper";
 import { TaskAssigneeEntity, TaskEntity, TaskHistoryEntity, TaskWatcherEntity } from "./entity";
 import { Task, TaskAssignee, TaskHistory, TaskWatcher } from "./model";
 
@@ -43,6 +44,7 @@ export class TaskAssigneeMapper {
       entity.user?.id,
       entity.createdAt,
       entity.updatedAt,
+      UserMapper.toDomain(entity.user),
     );
   }
 
@@ -68,6 +70,7 @@ export class TaskHistoryMapper {
       entity.comment,
       entity.createdAt,
       entity.updatedAt,
+      UserMapper.toDomain(entity.user),
     );
   }
 
@@ -93,6 +96,7 @@ export class TaskWatcherMapper {
       entity.user?.id,
       entity.createdAt,
       entity.updatedAt,
+      UserMapper.toDomain(entity.user),
     );
   }
 

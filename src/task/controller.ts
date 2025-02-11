@@ -119,6 +119,13 @@ export class TaskController {
   @Get(':id')
   async getTaskDetail(@Param('id') taskId: number, @Request() req) {
     const userId = req.user.id;
-    return this.taskService.getTaskDetail(taskId, userId);
+    const detail = await this.taskService.getTaskDetail(taskId, userId);
+    return {
+      task: detail.task,
+      children: detail.children,
+      assignees: detail.assignees.map(assignee => assignee.toResponse()),
+      watchers: detail.watchers.map(watcher => watcher.toResponse()),
+      history: detail.history.map(history => history.toResponse()),
+    }
   }
 }
