@@ -14,5 +14,8 @@
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
+  },
+  "ts-node": {
+    "require": ["tsconfig-paths/register"]
   }
 }
