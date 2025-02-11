@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <title>Todolist</title>
   <style>
-    /* Basic CSS reset */
+    /* Basic Reset */
     * {
       margin: 0; padding: 0; box-sizing: border-box;
     }
@@ -20,16 +20,31 @@
     input, button, select, textarea {
       font-family: inherit;
     }
+
     /* Container layout */
     .container {
-      max-width: 800px;
+      max-width: 900px;
       margin: 0 auto;
     }
+
     .hidden {
       display: none !important;
     }
 
-    /* Simple card style */
+    /* Top Bar */
+    .top-bar {
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .user-info {
+      font-size: 0.9rem;
+      color: #555;
+      margin-right: 8px;
+    }
+
+    /* Card Style */
     .card {
       background: #ffffff;
       padding: 16px;
@@ -37,11 +52,16 @@
       margin-bottom: 16px;
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
-    .card > h2 {
-      margin-bottom: 8px;
+    .card:not(:last-child) {
+      margin-bottom: 20px;
     }
 
-    /* Button style */
+    /* Margin utilities */
+    .mb-1 { margin-bottom: 8px; }
+    .mb-2 { margin-bottom: 12px; }
+    .mb-3 { margin-bottom: 16px; }
+
+    /* Buttons */
     button {
       cursor: pointer;
       background: #3498db;
@@ -49,7 +69,8 @@
       color: #fff;
       padding: 8px 16px;
       border-radius: 4px;
-      margin-right: 8px;
+      margin-right: 4px;
+      font-size: 0.9rem;
     }
     button:hover {
       background: #2980b9;
@@ -60,28 +81,124 @@
     .danger:hover {
       background: #c0392b;
     }
+    .sm-btn {
+      padding: 5px 10px;
+      font-size: 0.8rem;
+    }
 
-    /* Form layout */
+    /* Input style */
     label {
       display: block;
       margin: 8px 0 4px;
+      font-weight: 500;
     }
-    input[type="text"], input[type="password"], input[type="date"], textarea {
+    input[type="text"], input[type="password"], input[type="date"], select, textarea {
       width: 100%;
       padding: 8px;
       margin-bottom: 8px;
       border: 1px solid #dcdcdc;
       border-radius: 4px;
+      font-size: 1rem;
     }
 
-    /* Navigation or top bar style */
-    .top-bar {
-      margin-bottom: 20px;
+    /* Auth tab style */
+    .auth-tabs {
       display: flex;
-      justify-content: space-between;
+      margin-bottom: 16px;
+      gap: 8px;
+    }
+    .auth-tabs button {
+      padding: 8px 16px;
+      font-size: 1rem;
+      background: #bdc3c7;
+      border-radius: 4px;
+    }
+    .auth-tabs button.active {
+      background: #3498db;
+      color: #fff;
+      cursor: default;
     }
 
-    /* Modal style */
+    /* Teams list styling */
+    #teamsList {
+      list-style: none;
+      padding-left: 0;
+    }
+    #teamsList li {
+      background: #f9f9f9;
+      padding: 10px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-radius: 4px;
+    }
+    #teamsList li:hover {
+      background: #f0f0f0;
+    }
+    #teamsList li span.team-name {
+      font-weight: 600;
+      cursor: pointer;
+      margin-left: 8px;
+    }
+
+    /* Team detail styling */
+    .team-detail-header {
+      position: relative;
+    }
+    .delete-team-btn {
+      position: absolute;
+      top: 0;
+      right: 0;
+    }
+    #teamMembers {
+      margin-left: 16px;
+      margin-top: 6px;
+    }
+    .invite-btn {
+      margin-top: 12px;
+    }
+
+    /* Filter area */
+    .filter-row {
+      margin-bottom: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .filter-row > div {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* Tasks table */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      text-align: left;
+      padding: 8px;
+      vertical-align: middle;
+    }
+    tr:nth-child(even) {
+      background: #fbfbfb;
+    }
+    .sub-task-row {
+      background: #e8f0ff; /* highlight sub-task */
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 12px;
+      background: #dcdcdc;
+      margin-left: 8px;
+      font-size: 0.9em;
+    }
+
+    /* Modal overlay (scrollable) */
     .modal-overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -95,12 +212,14 @@
       background: #fff;
       border-radius: 6px;
       padding: 20px;
-      width: 400px;
+      width: 420px;
       max-width: 90%;
       position: relative;
+      max-height: 90vh; /* make it scrollable */
+      overflow-y: auto;
     }
     .modal-content h3 {
-      margin-bottom: 12px;
+      margin-bottom: 16px;
     }
     .modal-close-btn {
       position: absolute;
@@ -115,58 +234,60 @@
       color: #333;
     }
 
-    /* Minimal table styling */
-    table {
-      width: 100%;
-      border-collapse: collapse;
+    /* Larger modal for task detail */
+    .task-detail-modal {
+      width: 600px;
+      max-height: 90vh;
+      overflow-y: auto;
     }
-    th, td {
-      text-align: left;
-      padding: 8px;
+
+    /* Task detail styling */
+    #taskDetailContent p {
+      margin-bottom: 8px;
     }
-    tr:nth-child(even) {
-      background: #f9f9f9;
+    #taskDetailContent .section-block {
+      margin-top: 16px;
+      margin-bottom: 16px;
     }
-    .status-badge {
-      display: inline-block;
-      padding: 4px 8px;
-      border-radius: 12px;
-      background: #dcdcdc;
-      margin-left: 8px;
-      font-size: 0.9em;
+    #taskDetailContent ul {
+      margin-left: 24px;
+      margin-top: 8px;
+      margin-bottom: 8px;
+    }
+    #taskDetailContent .child-task-link {
+      color: #2980b9;
+      cursor: pointer;
+      text-decoration: underline;
     }
   </style>
 </head>
 <body>
-  <!-- Page Container -->
   <div class="container">
 
     <!-- Top Bar -->
     <div class="top-bar">
-      <h1>Todolist - DEMO</h1>
+      <h1>Todolist DEMO</h1>
       <div>
+        <span id="loggedInUser" class="user-info hidden">已登入為：<strong></strong></span>
         <button id="logoutBtn" class="danger hidden">登出</button>
       </div>
     </div>
 
-    <!-- Auth Section (Show if not logged in) -->
+    <!-- Auth Section (show if not logged in) -->
     <div id="authSection" class="card">
-      <h2>用戶登入 / 註冊</h2>
-      <!-- Switch between login and register forms -->
-      <div>
-        <button id="switchToLoginBtn">登入</button>
+      <h2 class="mb-2">用戶登入 / 註冊</h2>
+      <div class="auth-tabs">
+        <button id="switchToLoginBtn" class="active">登入</button>
         <button id="switchToRegisterBtn">註冊</button>
       </div>
-      <br/>
       <!-- Login form -->
-      <div id="loginForm" class="">
+      <div id="loginForm">
         <label>Username</label>
         <input type="text" id="loginUsername" />
         <label>Password</label>
         <input type="password" id="loginPassword" />
         <button onclick="onLogin()">登入</button>
       </div>
-
       <!-- Register form -->
       <div id="registerForm" class="hidden">
         <label>Username</label>
@@ -177,43 +298,83 @@
       </div>
     </div>
 
-    <!-- Main Section (Teams List) -->
+    <!-- My Teams Section -->
     <div id="teamsSection" class="hidden">
       <div class="card">
-        <h2>我的團隊</h2>
+        <h2 class="mb-2">我的團隊</h2>
         <button onclick="openCreateTeamModal()">建立新團隊</button>
-        <ul id="teamsList"></ul>
+        <ul id="teamsList" class="mb-2"></ul>
       </div>
     </div>
 
     <!-- Team Detail Section -->
     <div id="teamDetailSection" class="hidden">
-      <div class="card">
-        <h2>團隊資訊</h2>
-        <div>
-          <p><strong>名稱：</strong><span id="teamName"></span></p>
-          <p><strong>成員：</strong></p>
-          <ul id="teamMembers"></ul>
-
-          <button onclick="openInviteModal()">邀請新成員</button>
-          <button id="deleteTeamBtn" class="danger">刪除團隊</button>
-        </div>
+      <div class="card team-detail-header">
+        <h2 class="mb-2">團隊資訊</h2>
+        <button id="deleteTeamBtn" class="danger delete-team-btn">刪除團隊</button>
+        <p>
+          <strong>名稱：</strong><span id="teamName"></span>
+        </p>
+        <p><strong>成員：</strong></p>
+        <ul id="teamMembers"></ul>
+        <button class="invite-btn" onclick="openInviteModal()">邀請新成員</button>
       </div>
 
       <div class="card">
-        <h2>團隊任務列表</h2>
-        <div>
-          <label>篩選：</label>
-          <input type="date" id="dueDateStart"/>
-          <input type="date" id="dueDateEnd"/>
-          <select id="statusFilter">
-            <option value="">全部狀態</option>
-            <option value="open">open</option>
-            <option value="completed">completed</option>
-            <option value="archived">archived</option>
-          </select>
+        <h2 class="mb-2">團隊任務列表</h2>
+        <!-- Filter area -->
+        <div class="filter-row">
+          <div>
+            <label>建立者</label>
+            <select id="filterCreator">
+              <option value="">全部</option>
+            </select>
+          </div>
+          <div>
+            <label>執行人</label>
+            <select id="filterAssignee">
+              <option value="">全部</option>
+            </select>
+          </div>
+          <div>
+            <label>關注者</label>
+            <select id="filterWatcher">
+              <option value="">全部</option>
+            </select>
+          </div>
+          <div>
+            <label>狀態</label>
+            <select id="statusFilter">
+              <option value="">全部</option>
+              <option value="open">open</option>
+              <option value="completed">completed</option>
+              <option value="archived">archived</option>
+            </select>
+          </div>
+          <div>
+            <label>開始</label>
+            <input type="date" id="dueDateStart" style="width:140px;">
+          </div>
+          <div>
+            <label>結束</label>
+            <input type="date" id="dueDateEnd" style="width:140px;">
+          </div>
+          <div>
+            <label>排序</label>
+            <select id="sortBySelect">
+              <option value="createdAt">建立時間</option>
+              <option value="dueDate">計劃完成時間</option>
+              <option value="creator">創建者</option>
+            </select>
+            <select id="sortOrderSelect">
+              <option value="ASC">ASC</option>
+              <option value="DESC">DESC</option>
+            </select>
+          </div>
           <button onclick="loadTasks()">篩選</button>
+        </div>
 
+        <div class="mb-2">
           <button onclick="openCreateTaskModal()">建立任務</button>
         </div>
         <table>
@@ -237,7 +398,7 @@
     <div class="modal-content">
       <button class="modal-close-btn" onclick="closeCreateTeamModal()">×</button>
       <h3>建立新的團隊</h3>
-      <label>團隊名稱：</label>
+      <label>團隊名稱</label>
       <input type="text" id="createTeamName"/>
       <button onclick="onCreateTeam()">建立</button>
     </div>
@@ -247,8 +408,8 @@
   <div id="inviteModal" class="modal-overlay hidden">
     <div class="modal-content">
       <button class="modal-close-btn" onclick="closeInviteModal()">×</button>
-      <h3>邀請成員</h3>
-      <label>成員 Username：</label>
+      <h3>邀請新成員</h3>
+      <label>成員 Username</label>
       <input type="text" id="inviteUsername"/>
       <button onclick="onInvite()">邀請</button>
     </div>
@@ -260,25 +421,22 @@
       <button class="modal-close-btn" onclick="closeTaskModal()">×</button>
       <h3 id="taskModalTitle">建立任務</h3>
       <input type="hidden" id="taskIdHidden" value=""/>
-      <!-- if parentTaskId needed, can add an input as well -->
-      <label>標題：</label>
+      <label>標題</label>
       <input type="text" id="taskTitle"/>
-      <label>描述：</label>
-      <textarea id="taskDescription"></textarea>
-      <label>到期日：</label>
+      <label>描述</label>
+      <textarea id="taskDescription" rows="3"></textarea>
+      <label>到期日</label>
       <input type="date" id="taskDueDate"/>
       <button onclick="onSubmitTask()">確定</button>
     </div>
   </div>
 
-  <!-- Modal for showing Task Detail -->
+  <!-- Modal for showing Task Detail (scrollable) -->
   <div id="taskDetailModal" class="modal-overlay hidden">
-    <div class="modal-content" style="max-width: 600px;">
+    <div class="modal-content task-detail-modal">
       <button class="modal-close-btn" onclick="closeTaskDetailModal()">×</button>
       <h3>任務詳情</h3>
-      <div id="taskDetailContent">
-        <!-- Will be populated dynamically -->
-      </div>
+      <div id="taskDetailContent"></div>
     </div>
   </div>
 
@@ -287,6 +445,7 @@
     const API_HOST = 'http://0.0.0.0:3050';
     let currentUser = null;   // { id, username, token }
     let currentTeamId = null; // which team we are currently viewing
+    let currentTeamMembers = []; // store members { userId, username, role }
 
     /* ========== On Load Check ========== */
     window.onload = function() {
@@ -308,25 +467,38 @@
         };
         document.getElementById('authSection').classList.add('hidden');
         document.getElementById('logoutBtn').classList.remove('hidden');
+        const userSpan = document.getElementById('loggedInUser');
+        userSpan.classList.remove('hidden');
+        userSpan.querySelector('strong').textContent = username;
         document.getElementById('teamsSection').classList.remove('hidden');
-        loadTeams(); // show user teams
+        loadTeams();
       } else {
         // user not logged in
         document.getElementById('authSection').classList.remove('hidden');
         document.getElementById('logoutBtn').classList.add('hidden');
+        document.getElementById('loggedInUser').classList.add('hidden');
         document.getElementById('teamsSection').classList.add('hidden');
         document.getElementById('teamDetailSection').classList.add('hidden');
       }
     }
 
     // Switch form
-    document.getElementById('switchToLoginBtn').addEventListener('click', ()=>{
-      document.getElementById('loginForm').classList.remove('hidden');
-      document.getElementById('registerForm').classList.add('hidden');
+    const loginBtnTab = document.getElementById('switchToLoginBtn');
+    const regBtnTab = document.getElementById('switchToRegisterBtn');
+    const loginFormDiv = document.getElementById('loginForm');
+    const registerFormDiv = document.getElementById('registerForm');
+
+    loginBtnTab.addEventListener('click', ()=>{
+      loginBtnTab.classList.add('active');
+      regBtnTab.classList.remove('active');
+      loginFormDiv.classList.remove('hidden');
+      registerFormDiv.classList.add('hidden');
     });
-    document.getElementById('switchToRegisterBtn').addEventListener('click', ()=>{
-      document.getElementById('loginForm').classList.add('hidden');
-      document.getElementById('registerForm').classList.remove('hidden');
+    regBtnTab.addEventListener('click', ()=>{
+      regBtnTab.classList.add('active');
+      loginBtnTab.classList.remove('active');
+      loginFormDiv.classList.add('hidden');
+      registerFormDiv.classList.remove('hidden');
     });
 
     async function onLogin() {
@@ -358,7 +530,9 @@
       try {
         const res = await fetch(`${API_HOST}/auth/register`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json'
+          },
           body: JSON.stringify({ username, password })
         });
         if (!res.ok) {
@@ -386,10 +560,8 @@
 
     /* ========== Teams ========== */
     async function loadTeams() {
-      // hide detail section
       document.getElementById('teamDetailSection').classList.add('hidden');
       currentTeamId = null;
-
       try {
         const res = await fetch(`${API_HOST}/teams`, {
           headers: {
@@ -412,24 +584,20 @@
       ul.innerHTML = '';
       teams.forEach((team) => {
         const li = document.createElement('li');
-        li.style.margin = '8px 0';
-
-        const span = document.createElement('span');
-        span.textContent = `${team.name}`;
-        span.style.cursor = 'pointer';
-        span.style.fontWeight = 'bold';
-        span.addEventListener('click', () => loadTeamDetail(team.id));
+        const nameSpan = document.createElement('span');
+        nameSpan.textContent = team.name;
+        nameSpan.classList.add('team-name');
+        nameSpan.addEventListener('click', () => loadTeamDetail(team.id));
 
         const delBtn = document.createElement('button');
-        delBtn.classList.add('danger');
+        delBtn.classList.add('danger', 'sm-btn');
         delBtn.textContent = '刪除';
         delBtn.addEventListener('click', (e)=>{
           e.stopPropagation();
           onDeleteTeam(team.id);
         });
 
-        li.appendChild(span);
-        li.appendChild(document.createTextNode(' '));
+        li.appendChild(nameSpan);
         li.appendChild(delBtn);
         ul.appendChild(li);
       });
@@ -437,10 +605,7 @@
 
     async function loadTeamDetail(teamId) {
       currentTeamId = teamId;
-      // show detail section
       document.getElementById('teamDetailSection').classList.remove('hidden');
-
-      // fetch team detail
       try {
         const res = await fetch(`${API_HOST}/teams/${teamId}`, {
           headers: {
@@ -457,8 +622,12 @@
           return;
         }
         const data = await res.json();
-        // data = { team: {...}, members: [...] }
         document.getElementById('teamName').textContent = data.team.name || '';
+        currentTeamMembers = data.members.map(m => ({
+          userId: m.userId,
+          username: m.user?.username || 'unknown',
+          role: m.role
+        }));
 
         // Render members
         const membersUl = document.getElementById('teamMembers');
@@ -474,7 +643,21 @@
           onDeleteTeam(teamId);
         };
 
-        // load tasks for this team
+        // Fill filter select
+        const filterCreator = document.getElementById('filterCreator');
+        const filterAssignee = document.getElementById('filterAssignee');
+        const filterWatcher = document.getElementById('filterWatcher');
+        [filterCreator, filterAssignee, filterWatcher].forEach(sel => {
+          sel.innerHTML = '<option value="">全部</option>';
+          currentTeamMembers.forEach(m => {
+            const opt = document.createElement('option');
+            opt.value = m.userId;
+            opt.text = m.username;
+            sel.appendChild(opt);
+          });
+        });
+
+        // load tasks
         loadTasks();
       } catch (err) {
         alert('發生錯誤: ' + err.message);
@@ -484,11 +667,12 @@
     async function onDeleteTeam(teamId) {
       const yes = confirm('確定刪除此團隊？');
       if (!yes) return;
-
       try {
         const res = await fetch(`${API_HOST}/teams/${teamId}`, {
           method: 'DELETE',
-          headers: { 'Authorization': 'Bearer ' + currentUser.token }
+          headers: {
+            'Authorization': 'Bearer ' + currentUser.token
+          }
         });
         if (!res.ok) {
           alert('刪除失敗');
@@ -575,13 +759,22 @@
       const dueDateStart = document.getElementById('dueDateStart').value;
       const dueDateEnd = document.getElementById('dueDateEnd').value;
       const status = document.getElementById('statusFilter').value;
+      const creator = document.getElementById('filterCreator').value;
+      const assignee = document.getElementById('filterAssignee').value;
+      const watcher = document.getElementById('filterWatcher').value;
+      const sortBy = document.getElementById('sortBySelect').value;
+      const sortOrder = document.getElementById('sortOrderSelect').value;
 
-      // minimal example, just pass teamId, dueDateStart, dueDateEnd, status
       const query = new URLSearchParams();
       query.set('teamId', currentTeamId);
       if (dueDateStart) query.set('dueDateStart', dueDateStart);
       if (dueDateEnd) query.set('dueDateEnd', dueDateEnd);
       if (status) query.set('status', status);
+      if (creator) query.set('creatorId', creator);
+      if (assignee) query.set('assigneeId', assignee);
+      if (watcher) query.set('watcherId', watcher);
+      query.set('sortBy', sortBy);
+      query.set('sortOrder', sortOrder);
 
       try {
         const res = await fetch(`${API_HOST}/tasks?${query.toString()}`, {
@@ -606,31 +799,49 @@
       tasks.forEach(task => {
         const tr = document.createElement('tr');
 
+        // If it's sub-task, highlight row + add symbol
+        if (task.parentId) {
+          tr.classList.add('sub-task-row');
+        }
+
+        // Title
         const tdTitle = document.createElement('td');
-        tdTitle.textContent = task.title;
+        const subSymbol = task.parentId ? '⇢ ' : ''; 
+        tdTitle.textContent = subSymbol + task.title;
         tdTitle.style.cursor = 'pointer';
         tdTitle.addEventListener('click', () => openTaskDetailModal(task.id));
 
+        // Status
         const tdStatus = document.createElement('td');
         tdStatus.innerHTML = `<span class="status-badge">${task.status}</span>`;
 
+        // Operations
         const tdOps = document.createElement('td');
+        // (1) child task
+        const childBtn = document.createElement('button');
+        childBtn.textContent = '子任務';
+        childBtn.classList.add('sm-btn');
+        childBtn.onclick = () => openCreateTaskModal(task.id);
+
+        // (2) edit title/desc
+        const editBtn = document.createElement('button');
+        editBtn.textContent = '更新';
+        editBtn.classList.add('sm-btn');
+        editBtn.onclick = () => openCreateTaskModal(task.id, true, task);
+
+        // (3) delete
         const delBtn = document.createElement('button');
-        delBtn.classList.add('danger');
+        delBtn.classList.add('danger', 'sm-btn');
         delBtn.textContent = '刪除';
         delBtn.onclick = () => onDeleteTask(task.id);
 
-        const childBtn = document.createElement('button');
-        childBtn.textContent = '子任務';
-        childBtn.onclick = () => openCreateTaskModal(task.id);
-
         tdOps.appendChild(childBtn);
+        tdOps.appendChild(editBtn);
         tdOps.appendChild(delBtn);
 
         tr.appendChild(tdTitle);
         tr.appendChild(tdStatus);
         tr.appendChild(tdOps);
-
         tbody.appendChild(tr);
       });
     }
@@ -657,23 +868,50 @@
     }
 
     /* ========== Create/Update Task Modal ========== */
-    function openCreateTaskModal(parentTaskId=null) {
+    function openCreateTaskModal(parentTaskId=null, isEdit=false, taskData=null) {
       document.getElementById('taskModal').classList.remove('hidden');
-      document.getElementById('taskModalTitle').textContent = parentTaskId ? '建立子任務' : '建立任務';
-      document.getElementById('taskIdHidden').value = parentTaskId ? `child:${parentTaskId}` : '';
-      document.getElementById('taskTitle').value = '';
-      document.getElementById('taskDescription').value = '';
-      document.getElementById('taskDueDate').value = '';
+      const titleEl = document.getElementById('taskModalTitle');
+      const hiddenIdEl = document.getElementById('taskIdHidden');
+      const taskTitleEl = document.getElementById('taskTitle');
+      const taskDescEl = document.getElementById('taskDescription');
+      const taskDueEl = document.getElementById('taskDueDate');
+
+      if (isEdit && taskData) {
+        titleEl.textContent = '更新任務';
+        hiddenIdEl.value = `edit:${taskData.id}`;
+        taskTitleEl.value = taskData.title;
+        taskDescEl.value = taskData.description;
+        if (taskData.dueDate) {
+          taskDueEl.value = taskData.dueDate.split('T')[0];
+        } else {
+          taskDueEl.value = '';
+        }
+      } else if (parentTaskId) {
+        // child
+        titleEl.textContent = '建立子任務';
+        hiddenIdEl.value = `child:${parentTaskId}`;
+        taskTitleEl.value = '';
+        taskDescEl.value = '';
+        taskDueEl.value = '';
+      } else {
+        titleEl.textContent = '建立任務';
+        hiddenIdEl.value = '';
+        taskTitleEl.value = '';
+        taskDescEl.value = '';
+        taskDueEl.value = '';
+      }
     }
     function closeTaskModal() {
       document.getElementById('taskModal').classList.add('hidden');
     }
     async function onSubmitTask() {
-      // read data
-      const hiddenVal = document.getElementById('taskIdHidden').value; // could be "child:<id>" or ""
+      const hiddenVal = document.getElementById('taskIdHidden').value; 
       let parentTaskId = null;
+      let editTaskId = null;
       if (hiddenVal.startsWith('child:')) {
         parentTaskId = Number(hiddenVal.split(':')[1]);
+      } else if (hiddenVal.startsWith('edit:')) {
+        editTaskId = Number(hiddenVal.split(':')[1]);
       }
 
       const title = document.getElementById('taskTitle').value.trim();
@@ -684,30 +922,47 @@
         alert('請輸入任務標題');
         return;
       }
-
       try {
-        const res = await fetch(`${API_HOST}/tasks`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + currentUser.token
-          },
-          body: JSON.stringify({
+        if (editTaskId) {
+          // Update existing task (title, description, dueDate)
+          const res = await fetch(`${API_HOST}/tasks/${editTaskId}`, {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + currentUser.token
+            },
+            body: JSON.stringify({ title, description, dueDate: dueDateVal })
+          });
+          if (!res.ok) {
+            alert('更新任務失敗');
+            return;
+          }
+        } else {
+          // create new
+          const payload = {
             teamId: currentTeamId,
-            parentTaskId,
-            title,
-            description,
+            title, description,
             dueDate: dueDateVal
-          })
-        });
-        if (!res.ok) {
-          alert('建立任務失敗');
-          return;
+          };
+          if (parentTaskId) payload.parentTaskId = parentTaskId;
+
+          const res = await fetch(`${API_HOST}/tasks`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + currentUser.token
+            },
+            body: JSON.stringify(payload)
+          });
+          if (!res.ok) {
+            alert('建立任務失敗');
+            return;
+          }
         }
         closeTaskModal();
         loadTasks();
       } catch (err) {
-        alert('建立任務錯誤: ' + err.message);
+        alert('任務操作錯誤: ' + err.message);
       }
     }
 
@@ -716,6 +971,7 @@
       document.getElementById('taskDetailModal').classList.remove('hidden');
       const contentDiv = document.getElementById('taskDetailContent');
       contentDiv.innerHTML = 'Loading...';
+
       try {
         const res = await fetch(`${API_HOST}/tasks/${taskId}`, {
           headers: {
@@ -740,60 +996,97 @@
 
     function renderTaskDetail(data) {
       // data = { task, children, assignees, watchers, history }
-      // Simple rendering example
       const contentDiv = document.getElementById('taskDetailContent');
       const t = data.task;
+
+      const createdDate = t.createdAt ? new Date(t.createdAt).toLocaleString() : '';
       let html = `
         <p><strong>標題：</strong>${t.title}</p>
         <p><strong>描述：</strong>${t.description}</p>
         <p><strong>狀態：</strong>${t.status}</p>
         <p><strong>到期日：</strong>${t.dueDate || ''}</p>
-        <p><strong>建立者：</strong>${t.creatorId}</p>
-        <hr/>
-        <h4>指派成員：</h4>
-        <ul>
+        <p><strong>建立時間：</strong>${createdDate}</p>
       `;
-      data.assignees.forEach(a => {
-        html += `<li>userId: ${a.userId}</li>`;
-      });
-      html += `</ul><button onclick="onAddAssignee(${t.id})">+ 新增</button>`;
+      // creator
+      const creatorName = (currentTeamMembers.find(m => m.userId == t.creatorId)?.username) || `使用者(${t.creatorId})`;
+      html += `<p><strong>建立者：</strong>${creatorName}</p>`;
 
-      html += `<h4>關注成員：</h4><ul>`;
-      data.watchers.forEach(w => {
-        html += `<li>userId: ${w.userId}</li>`;
+      // assignees
+      html += `<div class="section-block">
+          <h4>指派成員：</h4>
+          <ul>`;
+      data.assignees.forEach(a => {
+        const uname = (currentTeamMembers.find(m => m.userId == a.userId)?.username) || `使用者(${a.userId})`;
+        html += `<li>${uname}</li>`;
       });
-      html += `</ul><button onclick="onAddWatcher(${t.id})">+ 新增</button>`;
+      html += `</ul>
+        <label>新增指派成員</label>
+        <select id="assigneeSelect">
+          <option value="">選擇</option>
+      `;
+      currentTeamMembers.forEach(m => {
+        html += `<option value="${m.userId}">${m.username}</option>`;
+      });
+      html += `</select>
+      <button onclick="onAddAssignee(${t.id})">新增</button>
+      </div>`;
+
+      // watchers
+      html += `<div class="section-block">
+        <h4>關注成員：</h4>
+        <ul>`;
+      data.watchers.forEach(w => {
+        const uname = (currentTeamMembers.find(mm => mm.userId == w.userId)?.username) || `使用者(${w.userId})`;
+        html += `<li>${uname}</li>`;
+      });
+      html += `</ul>
+        <label>新增關注成員</label>
+        <select id="watcherSelect">
+          <option value="">選擇</option>`;
+      currentTeamMembers.forEach(m => {
+        html += `<option value="${m.userId}">${m.username}</option>`;
+      });
+      html += `</select>
+      <button onclick="onAddWatcher(${t.id})">新增</button>
+      </div>`;
 
       // children
-      html += `<hr/><h4>子任務列表</h4><ul>`;
+      html += `<div class="section-block">
+        <h4>子任務列表</h4><ul>`;
       data.children.forEach(c => {
-        html += `<li>[${c.status}] ${c.title}</li>`;
+        const childTitle = `<span class="child-task-link" onclick="openTaskDetailModal(${c.id})">${c.title}</span>`;
+        html += `<li>[${c.status}] ${childTitle}</li>`;
       });
-      html += `</ul>`;
+      html += `</ul></div>`;
 
       // history
-      html += `<hr/><h4>歷史紀錄</h4><ul>`;
+      html += `<div class="section-block">
+        <h4>歷史紀錄</h4><ul>`;
       data.history.forEach(h => {
-        html += `<li>[${h.action}] ${h.comment || ''} (${h.createdAt})</li>`;
+        const userName = (currentTeamMembers.find(mm => mm.userId == h.userId)?.username) || `使用者(${h.userId})`;
+        html += `<li><strong>${h.action}</strong> by ${userName} - ${h.comment || ''} (${h.createdAt})</li>`;
       });
-      html += `</ul>`;
+      html += `</ul></div>`;
 
       // comment
       html += `
-        <textarea id="commentText" placeholder="新增評論..."></textarea>
-        <button onclick="onAddComment(${t.id})">發表評論</button>
+        <div class="section-block">
+          <textarea id="commentText" rows="2" placeholder="新增評論..."></textarea>
+          <br/>
+          <button onclick="onAddComment(${t.id})">發表評論</button>
+        </div>
       `;
 
       // status change
       html += `
-        <div style="margin-top:8px;">
+        <div class="section-block">
           <label>更新狀態：</label>
           <select id="taskStatusSelect">
             <option value="open" ${t.status==='open'?'selected':''}>open</option>
             <option value="completed" ${t.status==='completed'?'selected':''}>completed</option>
             <option value="archived" ${t.status==='archived'?'selected':''}>archived</option>
           </select>
-          <button onclick="onUpdateStatus(${t.id})">送出</button>
+          <button onclick="onUpdateStatus(${t.id})">更新狀態</button>
         </div>
       `;
 
@@ -801,19 +1094,17 @@
     }
 
     async function onAddAssignee(taskId) {
-      const userId = prompt('請輸入要指派的 userId:');
+      const sel = document.getElementById('assigneeSelect');
+      const userId = sel.value;
       if (!userId) return;
       try {
-        // call updateTask with addAssignees
         await fetch(`${API_HOST}/tasks/${taskId}`, {
           method: 'PATCH',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': 'Bearer ' + currentUser.token
           },
-          body: JSON.stringify({
-            addAssignees: [ Number(userId) ]
-          })
+          body: JSON.stringify({ addAssignees: [Number(userId)] })
         });
         openTaskDetailModal(taskId); // reload
       } catch(err) {
@@ -821,7 +1112,8 @@
       }
     }
     async function onAddWatcher(taskId) {
-      const userId = prompt('請輸入要關注的 userId:');
+      const sel = document.getElementById('watcherSelect');
+      const userId = sel.value;
       if (!userId) return;
       try {
         await fetch(`${API_HOST}/tasks/${taskId}`, {
@@ -830,9 +1122,7 @@
             'Content-Type': 'application/json',
             'Authorization': 'Bearer ' + currentUser.token
           },
-          body: JSON.stringify({
-            addWatchers: [ Number(userId) ]
-          })
+          body: JSON.stringify({ addWatchers: [Number(userId)] })
         });
         openTaskDetailModal(taskId); // reload
       } catch(err) {
@@ -849,9 +1139,7 @@
             'Content-Type': 'application/json',
             'Authorization': 'Bearer ' + currentUser.token
           },
-          body: JSON.stringify({
-            comment: cmt
-          })
+          body: JSON.stringify({ comment: cmt })
         });
         openTaskDetailModal(taskId); // reload
       } catch (err) {
@@ -867,9 +1155,7 @@
             'Content-Type': 'application/json',
             'Authorization': 'Bearer ' + currentUser.token
           },
-          body: JSON.stringify({
-            status: st
-          })
+          body: JSON.stringify({ status: st })
         });
         openTaskDetailModal(taskId); // reload
       } catch (err) {
