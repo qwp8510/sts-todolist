@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Todolist</title>
+  <style>
+    /* Basic CSS reset */
+    * {
+      margin: 0; padding: 0; box-sizing: border-box;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f5f6fa;
+      color: #2f3640;
+      padding: 20px;
+    }
+    h1, h2, h3, h4, h5 {
+      margin-bottom: 12px;
+    }
+    input, button, select, textarea {
+      font-family: inherit;
+    }
+    /* Container layout */
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .hidden {
+      display: none !important;
+    }
+
+    /* Simple card style */
+    .card {
+      background: #ffffff;
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .card > h2 {
+      margin-bottom: 8px;
+    }
+
+    /* Button style */
+    button {
+      cursor: pointer;
+      background: #3498db;
+      border: none;
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 4px;
+      margin-right: 8px;
+    }
+    button:hover {
+      background: #2980b9;
+    }
+    .danger {
+      background: #e74c3c;
+    }
+    .danger:hover {
+      background: #c0392b;
+    }
+
+    /* Form layout */
+    label {
+      display: block;
+      margin: 8px 0 4px;
+    }
+    input[type="text"], input[type="password"], input[type="date"], textarea {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 8px;
+      border: 1px solid #dcdcdc;
+      border-radius: 4px;
+    }
+
+    /* Navigation or top bar style */
+    .top-bar {
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    /* Modal style */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-content {
+      background: #fff;
+      border-radius: 6px;
+      padding: 20px;
+      width: 400px;
+      max-width: 90%;
+      position: relative;
+    }
+    .modal-content h3 {
+      margin-bottom: 12px;
+    }
+    .modal-close-btn {
+      position: absolute;
+      top: 10px; right: 10px;
+      background: transparent;
+      border: none;
+      font-size: 18px;
+      cursor: pointer;
+      color: #888;
+    }
+    .modal-close-btn:hover {
+      color: #333;
+    }
+
+    /* Minimal table styling */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      text-align: left;
+      padding: 8px;
+    }
+    tr:nth-child(even) {
+      background: #f9f9f9;
+    }
+    .status-badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 12px;
+      background: #dcdcdc;
+      margin-left: 8px;
+      font-size: 0.9em;
+    }
+  </style>
+</head>
+<body>
+  <!-- Page Container -->
+  <div class="container">
+
+    <!-- Top Bar -->
+    <div class="top-bar">
+      <h1>Todolist - DEMO</h1>
+      <div>
+        <button id="logoutBtn" class="danger hidden">登出</button>
+      </div>
+    </div>
+
+    <!-- Auth Section (Show if not logged in) -->
+    <div id="authSection" class="card">
+      <h2>用戶登入 / 註冊</h2>
+      <!-- Switch between login and register forms -->
+      <div>
+        <button id="switchToLoginBtn">登入</button>
+        <button id="switchToRegisterBtn">註冊</button>
+      </div>
+      <br/>
+      <!-- Login form -->
+      <div id="loginForm" class="">
+        <label>Username</label>
+        <input type="text" id="loginUsername" />
+        <label>Password</label>
+        <input type="password" id="loginPassword" />
+        <button onclick="onLogin()">登入</button>
+      </div>
+
+      <!-- Register form -->
+      <div id="registerForm" class="hidden">
+        <label>Username</label>
+        <input type="text" id="registerUsername" />
+        <label>Password</label>
+        <input type="password" id="registerPassword" />
+        <button onclick="onRegister()">註冊</button>
+      </div>
+    </div>
+
+    <!-- Main Section (Teams List) -->
+    <div id="teamsSection" class="hidden">
+      <div class="card">
+        <h2>我的團隊</h2>
+        <button onclick="openCreateTeamModal()">建立新團隊</button>
+        <ul id="teamsList"></ul>
+      </div>
+    </div>
+
+    <!-- Team Detail Section -->
+    <div id="teamDetailSection" class="hidden">
+      <div class="card">
+        <h2>團隊資訊</h2>
+        <div>
+          <p><strong>名稱：</strong><span id="teamName"></span></p>
+          <p><strong>成員：</strong></p>
+          <ul id="teamMembers"></ul>
+
+          <button onclick="openInviteModal()">邀請新成員</button>
+          <button id="deleteTeamBtn" class="danger">刪除團隊</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>團隊任務列表</h2>
+        <div>
+          <label>篩選：</label>
+          <input type="date" id="dueDateStart"/>
+          <input type="date" id="dueDateEnd"/>
+          <select id="statusFilter">
+            <option value="">全部狀態</option>
+            <option value="open">open</option>
+            <option value="completed">completed</option>
+            <option value="archived">archived</option>
+          </select>
+          <button onclick="loadTasks()">篩選</button>
+
+          <button onclick="openCreateTaskModal()">建立任務</button>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>標題</th>
+              <th>狀態</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="tasksTableBody">
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Modal for creating new Team -->
+  <div id="createTeamModal" class="modal-overlay hidden">
+    <div class="modal-content">
+      <button class="modal-close-btn" onclick="closeCreateTeamModal()">×</button>
+      <h3>建立新的團隊</h3>
+      <label>團隊名稱：</label>
+      <input type="text" id="createTeamName"/>
+      <button onclick="onCreateTeam()">建立</button>
+    </div>
+  </div>
+
+  <!-- Modal for inviting user to Team -->
+  <div id="inviteModal" class="modal-overlay hidden">
+    <div class="modal-content">
+      <button class="modal-close-btn" onclick="closeInviteModal()">×</button>
+      <h3>邀請成員</h3>
+      <label>成員 Username：</label>
+      <input type="text" id="inviteUsername"/>
+      <button onclick="onInvite()">邀請</button>
+    </div>
+  </div>
+
+  <!-- Modal for creating/updating Task -->
+  <div id="taskModal" class="modal-overlay hidden">
+    <div class="modal-content">
+      <button class="modal-close-btn" onclick="closeTaskModal()">×</button>
+      <h3 id="taskModalTitle">建立任務</h3>
+      <input type="hidden" id="taskIdHidden" value=""/>
+      <!-- if parentTaskId needed, can add an input as well -->
+      <label>標題：</label>
+      <input type="text" id="taskTitle"/>
+      <label>描述：</label>
+      <textarea id="taskDescription"></textarea>
+      <label>到期日：</label>
+      <input type="date" id="taskDueDate"/>
+      <button onclick="onSubmitTask()">確定</button>
+    </div>
+  </div>
+
+  <!-- Modal for showing Task Detail -->
+  <div id="taskDetailModal" class="modal-overlay hidden">
+    <div class="modal-content" style="max-width: 600px;">
+      <button class="modal-close-btn" onclick="closeTaskDetailModal()">×</button>
+      <h3>任務詳情</h3>
+      <div id="taskDetailContent">
+        <!-- Will be populated dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ========== Global Variables ========== */
+    const API_HOST = 'http://0.0.0.0:3050';
+    let currentUser = null;   // { id, username, token }
+    let currentTeamId = null; // which team we are currently viewing
+
+    /* ========== On Load Check ========== */
+    window.onload = function() {
+      checkLoginState();
+    };
+
+    /* ========== Auth ========== */
+    function checkLoginState() {
+      const token = localStorage.getItem('token');
+      const userId = localStorage.getItem('userId');
+      const username = localStorage.getItem('username');
+
+      if (token && userId && username) {
+        // user is logged in
+        currentUser = {
+          id: Number(userId),
+          username,
+          token
+        };
+        document.getElementById('authSection').classList.add('hidden');
+        document.getElementById('logoutBtn').classList.remove('hidden');
+        document.getElementById('teamsSection').classList.remove('hidden');
+        loadTeams(); // show user teams
+      } else {
+        // user not logged in
+        document.getElementById('authSection').classList.remove('hidden');
+        document.getElementById('logoutBtn').classList.add('hidden');
+        document.getElementById('teamsSection').classList.add('hidden');
+        document.getElementById('teamDetailSection').classList.add('hidden');
+      }
+    }
+
+    // Switch form
+    document.getElementById('switchToLoginBtn').addEventListener('click', ()=>{
+      document.getElementById('loginForm').classList.remove('hidden');
+      document.getElementById('registerForm').classList.add('hidden');
+    });
+    document.getElementById('switchToRegisterBtn').addEventListener('click', ()=>{
+      document.getElementById('loginForm').classList.add('hidden');
+      document.getElementById('registerForm').classList.remove('hidden');
+    });
+
+    async function onLogin() {
+      const username = document.getElementById('loginUsername').value;
+      const password = document.getElementById('loginPassword').value;
+      try {
+        const res = await fetch(`${API_HOST}/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+        if (!res.ok) {
+          alert('登入失敗');
+          return;
+        }
+        const data = await res.json();
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('userId', data.user.id);
+        localStorage.setItem('username', data.user.username);
+        checkLoginState();
+      } catch (err) {
+        alert('登入失敗: ' + err.message);
+      }
+    }
+
+    async function onRegister() {
+      const username = document.getElementById('registerUsername').value;
+      const password = document.getElementById('registerPassword').value;
+      try {
+        const res = await fetch(`${API_HOST}/auth/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+        if (!res.ok) {
+          alert('註冊失敗');
+          return;
+        }
+        const data = await res.json();
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('userId', data.user.id);
+        localStorage.setItem('username', data.user.username);
+        checkLoginState();
+      } catch (err) {
+        alert('註冊失敗: ' + err.message);
+      }
+    }
+
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      // Clear local storage
+      localStorage.removeItem('token');
+      localStorage.removeItem('userId');
+      localStorage.removeItem('username');
+      currentUser = null;
+      checkLoginState();
+    });
+
+    /* ========== Teams ========== */
+    async function loadTeams() {
+      // hide detail section
+      document.getElementById('teamDetailSection').classList.add('hidden');
+      currentTeamId = null;
+
+      try {
+        const res = await fetch(`${API_HOST}/teams`, {
+          headers: {
+            'Authorization': 'Bearer ' + currentUser.token
+          }
+        });
+        if (!res.ok) {
+          alert('無法取得團隊列表');
+          return;
+        }
+        const teams = await res.json();
+        renderTeams(teams);
+      } catch (err) {
+        alert('發生錯誤: ' + err.message);
+      }
+    }
+
+    function renderTeams(teams) {
+      const ul = document.getElementById('teamsList');
+      ul.innerHTML = '';
+      teams.forEach((team) => {
+        const li = document.createElement('li');
+        li.style.margin = '8px 0';
+
+        const span = document.createElement('span');
+        span.textContent = `${team.name}`;
+        span.style.cursor = 'pointer';
+        span.style.fontWeight = 'bold';
+        span.addEventListener('click', () => loadTeamDetail(team.id));
+
+        const delBtn = document.createElement('button');
+        delBtn.classList.add('danger');
+        delBtn.textContent = '刪除';
+        delBtn.addEventListener('click', (e)=>{
+          e.stopPropagation();
+          onDeleteTeam(team.id);
+        });
+
+        li.appendChild(span);
+        li.appendChild(document.createTextNode(' '));
+        li.appendChild(delBtn);
+        ul.appendChild(li);
+      });
+    }
+
+    async function loadTeamDetail(teamId) {
+      currentTeamId = teamId;
+      // show detail section
+      document.getElementById('teamDetailSection').classList.remove('hidden');
+
+      // fetch team detail
+      try {
+        const res = await fetch(`${API_HOST}/teams/${teamId}`, {
+          headers: {
+            'Authorization': 'Bearer ' + currentUser.token
+          }
+        });
+        if (res.status === 403) {
+          alert('你沒有權限查看此團隊或團隊不存在');
+          loadTeams();
+          return;
+        }
+        if (!res.ok) {
+          alert('讀取團隊失敗');
+          return;
+        }
+        const data = await res.json();
+        // data = { team: {...}, members: [...] }
+        document.getElementById('teamName').textContent = data.team.name || '';
+
+        // Render members
+        const membersUl = document.getElementById('teamMembers');
+        membersUl.innerHTML = '';
+        data.members.forEach(m => {
+          const li = document.createElement('li');
+          li.textContent = `${m.user?.username || 'unknown'} (${m.role})`;
+          membersUl.appendChild(li);
+        });
+
+        // Delete button
+        document.getElementById('deleteTeamBtn').onclick = () => {
+          onDeleteTeam(teamId);
+        };
+
+        // load tasks for this team
+        loadTasks();
+      } catch (err) {
+        alert('發生錯誤: ' + err.message);
+      }
+    }
+
+    async function onDeleteTeam(teamId) {
+      const yes = confirm('確定刪除此團隊？');
+      if (!yes) return;
+
+      try {
+        const res = await fetch(`${API_HOST}/teams/${teamId}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': 'Bearer ' + currentUser.token }
+        });
+        if (!res.ok) {
+          alert('刪除失敗');
+          return;
+        }
+        alert('團隊已刪除');
+        loadTeams();
+      } catch (err) {
+        alert('刪除失敗: ' + err.message);
+      }
+    }
+
+    /* ========== Create Team Modal ========== */
+    function openCreateTeamModal() {
+      document.getElementById('createTeamModal').classList.remove('hidden');
+      document.getElementById('createTeamName').value = '';
+    }
+    function closeCreateTeamModal() {
+      document.getElementById('createTeamModal').classList.add('hidden');
+    }
+    async function onCreateTeam() {
+      const name = document.getElementById('createTeamName').value.trim();
+      if (!name) {
+        alert('請輸入團隊名稱');
+        return;
+      }
+      try {
+        const res = await fetch(`${API_HOST}/teams`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + currentUser.token
+          },
+          body: JSON.stringify({ name })
+        });
+        if (!res.ok) {
+          alert('建立團隊失敗');
+          return;
+        }
+        closeCreateTeamModal();
+        loadTeams();
+      } catch (err) {
+        alert('建立團隊發生錯誤: ' + err.message);
+      }
+    }
+
+    /* ========== Invite Modal ========== */
+    function openInviteModal() {
+      document.getElementById('inviteModal').classList.remove('hidden');
+      document.getElementById('inviteUsername').value = '';
+    }
+    function closeInviteModal() {
+      document.getElementById('inviteModal').classList.add('hidden');
+    }
+    async function onInvite() {
+      const username = document.getElementById('inviteUsername').value.trim();
+      if (!username) {
+        alert('請輸入成員username');
+        return;
+      }
+      try {
+        const res = await fetch(`${API_HOST}/teams/${currentTeamId}/invite`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + currentUser.token
+          },
+          body: JSON.stringify({ username })
+        });
+        if (!res.ok) {
+          alert('邀請失敗');
+          return;
+        }
+        alert('邀請成功');
+        closeInviteModal();
+        loadTeamDetail(currentTeamId);
+      } catch (err) {
+        alert('邀請失敗: ' + err.message);
+      }
+    }
+
+    /* ========== Tasks ========== */
+    async function loadTasks() {
+      const dueDateStart = document.getElementById('dueDateStart').value;
+      const dueDateEnd = document.getElementById('dueDateEnd').value;
+      const status = document.getElementById('statusFilter').value;
+
+      // minimal example, just pass teamId, dueDateStart, dueDateEnd, status
+      const query = new URLSearchParams();
+      query.set('teamId', currentTeamId);
+      if (dueDateStart) query.set('dueDateStart', dueDateStart);
+      if (dueDateEnd) query.set('dueDateEnd', dueDateEnd);
+      if (status) query.set('status', status);
+
+      try {
+        const res = await fetch(`${API_HOST}/tasks?${query.toString()}`, {
+          headers: {
+            'Authorization': 'Bearer ' + currentUser.token
+          }
+        });
+        if (!res.ok) {
+          alert('無法取得任務列表');
+          return;
+        }
+        const tasks = await res.json();
+        renderTasks(tasks);
+      } catch (err) {
+        alert('發生錯誤: ' + err.message);
+      }
+    }
+
+    function renderTasks(tasks) {
+      const tbody = document.getElementById('tasksTableBody');
+      tbody.innerHTML = '';
+      tasks.forEach(task => {
+        const tr = document.createElement('tr');
+
+        const tdTitle = document.createElement('td');
+        tdTitle.textContent = task.title;
+        tdTitle.style.cursor = 'pointer';
+        tdTitle.addEventListener('click', () => openTaskDetailModal(task.id));
+
+        const tdStatus = document.createElement('td');
+        tdStatus.innerHTML = `<span class="status-badge">${task.status}</span>`;
+
+        const tdOps = document.createElement('td');
+        const delBtn = document.createElement('button');
+        delBtn.classList.add('danger');
+        delBtn.textContent = '刪除';
+        delBtn.onclick = () => onDeleteTask(task.id);
+
+        const childBtn = document.createElement('button');
+        childBtn.textContent = '子任務';
+        childBtn.onclick = () => openCreateTaskModal(task.id);
+
+        tdOps.appendChild(childBtn);
+        tdOps.appendChild(delBtn);
+
+        tr.appendChild(tdTitle);
+        tr.appendChild(tdStatus);
+        tr.appendChild(tdOps);
+
+        tbody.appendChild(tr);
+      });
+    }
+
+    async function onDeleteTask(taskId) {
+      const yes = confirm('確定刪除此任務？');
+      if (!yes) return;
+      try {
+        const res = await fetch(`${API_HOST}/tasks/${taskId}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': 'Bearer ' + currentUser.token
+          }
+        });
+        if (!res.ok) {
+          alert('刪除任務失敗');
+          return;
+        }
+        alert('任務已刪除');
+        loadTasks();
+      } catch (err) {
+        alert('刪除任務失敗: ' + err.message);
+      }
+    }
+
+    /* ========== Create/Update Task Modal ========== */
+    function openCreateTaskModal(parentTaskId=null) {
+      document.getElementById('taskModal').classList.remove('hidden');
+      document.getElementById('taskModalTitle').textContent = parentTaskId ? '建立子任務' : '建立任務';
+      document.getElementById('taskIdHidden').value = parentTaskId ? `child:${parentTaskId}` : '';
+      document.getElementById('taskTitle').value = '';
+      document.getElementById('taskDescription').value = '';
+      document.getElementById('taskDueDate').value = '';
+    }
+    function closeTaskModal() {
+      document.getElementById('taskModal').classList.add('hidden');
+    }
+    async function onSubmitTask() {
+      // read data
+      const hiddenVal = document.getElementById('taskIdHidden').value; // could be "child:<id>" or ""
+      let parentTaskId = null;
+      if (hiddenVal.startsWith('child:')) {
+        parentTaskId = Number(hiddenVal.split(':')[1]);
+      }
+
+      const title = document.getElementById('taskTitle').value.trim();
+      const description = document.getElementById('taskDescription').value.trim();
+      const dueDateVal = document.getElementById('taskDueDate').value;
+
+      if (!title) {
+        alert('請輸入任務標題');
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_HOST}/tasks`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + currentUser.token
+          },
+          body: JSON.stringify({
+            teamId: currentTeamId,
+            parentTaskId,
+            title,
+            description,
+            dueDate: dueDateVal
+          })
+        });
+        if (!res.ok) {
+          alert('建立任務失敗');
+          return;
+        }
+        closeTaskModal();
+        loadTasks();
+      } catch (err) {
+        alert('建立任務錯誤: ' + err.message);
+      }
+    }
+
+    /* ========== Task Detail Modal ========== */
+    async function openTaskDetailModal(taskId) {
+      document.getElementById('taskDetailModal').classList.remove('hidden');
+      const contentDiv = document.getElementById('taskDetailContent');
+      contentDiv.innerHTML = 'Loading...';
+      try {
+        const res = await fetch(`${API_HOST}/tasks/${taskId}`, {
+          headers: {
+            'Authorization': 'Bearer ' + currentUser.token
+          }
+        });
+        if (!res.ok) {
+          alert('讀取任務失敗');
+          closeTaskDetailModal();
+          return;
+        }
+        const data = await res.json();
+        renderTaskDetail(data);
+      } catch (err) {
+        alert('讀取任務失敗: ' + err.message);
+        closeTaskDetailModal();
+      }
+    }
+    function closeTaskDetailModal() {
+      document.getElementById('taskDetailModal').classList.add('hidden');
+    }
+
+    function renderTaskDetail(data) {
+      // data = { task, children, assignees, watchers, history }
+      // Simple rendering example
+      const contentDiv = document.getElementById('taskDetailContent');
+      const t = data.task;
+      let html = `
+        <p><strong>標題：</strong>${t.title}</p>
+        <p><strong>描述：</strong>${t.description}</p>
+        <p><strong>狀態：</strong>${t.status}</p>
+        <p><strong>到期日：</strong>${t.dueDate || ''}</p>
+        <p><strong>建立者：</strong>${t.creatorId}</p>
+        <hr/>
+        <h4>指派成員：</h4>
+        <ul>
+      `;
+      data.assignees.forEach(a => {
+        html += `<li>userId: ${a.userId}</li>`;
+      });
+      html += `</ul><button onclick="onAddAssignee(${t.id})">+ 新增</button>`;
+
+      html += `<h4>關注成員：</h4><ul>`;
+      data.watchers.forEach(w => {
+        html += `<li>userId: ${w.userId}</li>`;
+      });
+      html += `</ul><button onclick="onAddWatcher(${t.id})">+ 新增</button>`;
+
+      // children
+      html += `<hr/><h4>子任務列表</h4><ul>`;
+      data.children.forEach(c => {
+        html += `<li>[${c.status}] ${c.title}</li>`;
+      });
+      html += `</ul>`;
+
+      // history
+      html += `<hr/><h4>歷史紀錄</h4><ul>`;
+      data.history.forEach(h => {
+        html += `<li>[${h.action}] ${h.comment || ''} (${h.createdAt})</li>`;
+      });
+      html += `</ul>`;
+
+      // comment
+      html += `
+        <textarea id="commentText" placeholder="新增評論..."></textarea>
+        <button onclick="onAddComment(${t.id})">發表評論</button>
+      `;
+
+      // status change
+      html += `
+        <div style="margin-top:8px;">
+          <label>更新狀態：</label>
+          <select id="taskStatusSelect">
+            <option value="open" ${t.status==='open'?'selected':''}>open</option>
+            <option value="completed" ${t.status==='completed'?'selected':''}>completed</option>
+            <option value="archived" ${t.status==='archived'?'selected':''}>archived</option>
+          </select>
+          <button onclick="onUpdateStatus(${t.id})">送出</button>
+        </div>
+      `;
+
+      contentDiv.innerHTML = html;
+    }
+
+    async function onAddAssignee(taskId) {
+      const userId = prompt('請輸入要指派的 userId:');
+      if (!userId) return;
+      try {
+        // call updateTask with addAssignees
+        await fetch(`${API_HOST}/tasks/${taskId}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + currentUser.token
+          },
+          body: JSON.stringify({
+            addAssignees: [ Number(userId) ]
+          })
+        });
+        openTaskDetailModal(taskId); // reload
+      } catch(err) {
+        alert('指派失敗: ' + err.message);
+      }
+    }
+    async function onAddWatcher(taskId) {
+      const userId = prompt('請輸入要關注的 userId:');
+      if (!userId) return;
+      try {
+        await fetch(`${API_HOST}/tasks/${taskId}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + currentUser.token
+          },
+          body: JSON.stringify({
+            addWatchers: [ Number(userId) ]
+          })
+        });
+        openTaskDetailModal(taskId); // reload
+      } catch(err) {
+        alert('新增關注失敗: ' + err.message);
+      }
+    }
+    async function onAddComment(taskId) {
+      const cmt = document.getElementById('commentText').value.trim();
+      if (!cmt) return;
+      try {
+        await fetch(`${API_HOST}/tasks/${taskId}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + currentUser.token
+          },
+          body: JSON.stringify({
+            comment: cmt
+          })
+        });
+        openTaskDetailModal(taskId); // reload
+      } catch (err) {
+        alert('新增評論失敗:' + err.message);
+      }
+    }
+    async function onUpdateStatus(taskId) {
+      const st = document.getElementById('taskStatusSelect').value;
+      try {
+        await fetch(`${API_HOST}/tasks/${taskId}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + currentUser.token
+          },
+          body: JSON.stringify({
+            status: st
+          })
+        });
+        openTaskDetailModal(taskId); // reload
+      } catch (err) {
+        alert('更新狀態失敗:' + err.message);
+      }
+    }
+  </script>
+</body>
+</html>

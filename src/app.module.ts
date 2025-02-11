@@ -8,6 +8,7 @@ import { AuthModule } from './auth/module';
 import { TaskAssigneeEntity, TaskEntity, TaskHistoryEntity, TaskWatcherEntity } from './task/entity';
 import { TeamEntity, TeamMemberEntity } from './team/entity';
 import { UserEntity } from './user/entity';
+import { AppController } from './controller';
 
 process.env.TZ = 'UTC';
 
@@ -43,7 +44,7 @@ export class DbModule {}
     UserModule,
     AuthModule,
   ],
-  controllers: [],
+  controllers: [AppController],
   providers: [],
 })
 export class AppModule {}
