@@ -11,6 +11,10 @@ export class Task {
   public dueDate?: Date;
   public createdAt: Date;
   public updatedAt: Date;
+  public children: Task[];
+  public assignees: TaskAssignee[];
+  public watchers: TaskWatcher[];
+  public histories: TaskHistory[];
 
   constructor(
     id: number,
@@ -23,6 +27,10 @@ export class Task {
     dueDate?: Date,
     createdAt?: Date,
     updatedAt?: Date,
+    children?: Task[],
+    assignees?: TaskAssignee[],
+    watchers?: TaskWatcher[],
+    histories?: TaskHistory[],
   ) {
     this.id = id;
     this.teamId = teamId;
@@ -34,6 +42,10 @@ export class Task {
     this.dueDate = dueDate;
     this.createdAt = createdAt ?? new Date();
     this.updatedAt = updatedAt ?? new Date();
+    this.children = children ?? [];
+    this.assignees = assignees ?? [];
+    this.watchers = watchers ?? [];
+    this.histories = histories ?? [];
   }
 
   public completeTask() {

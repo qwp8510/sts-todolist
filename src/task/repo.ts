@@ -121,6 +121,19 @@ export class TaskRepository implements ITaskRepository {
     const entities = await qb.getMany();
     return entities.map(TaskMapper.toDomain);
   }
+
+  async findDetailById(taskId: number): Promise<Task> {
+    const entity = await this.ormRepo.findOne({
+      where: { id: taskId },
+      relations: [
+        'children',
+        'assignees',
+        'watchers',
+        'histories',
+      ],
+    });
+    return TaskMapper.toDomain(entity);
+  }
 }
 
 @Injectable()

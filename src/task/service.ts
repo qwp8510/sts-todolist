@@ -240,7 +240,7 @@ export class TaskService implements ITaskService {
   async getTaskDetail(
     taskId: number, userId: number,
   ): Promise<{task: Task, children: Task[], assignees: TaskAssignee[], watchers: TaskWatcher[], history: TaskHistory[]}> {
-    const task = await this.taskRepo.findById(taskId);
+    const task = await this.taskRepo.findDetailById(taskId); // 新增的方法
     if (!task) {
       throw new ClientException("task_not_found", "Task not found");
     }
@@ -250,21 +250,12 @@ export class TaskService implements ITaskService {
       throw new ClientException("not_team_member", "You are not a member of this team");
     }
 
-    // TODO: use SQL Join optimize
-    const children = await this.taskRepo.findByParentId(taskId);
-
-    const assignees = await this.taskAssigneeService.getByTask(taskId);
-
-    const watchers = await this.taskWatcherService.getByTask(taskId);
-
-    const history = await this.taskHistoryService.getByTaskId(taskId);
-
     return {
       task,
-      children,
-      assignees,
-      watchers,
-      history,
+      children: task.children,
+      assignees: task.assignees,
+      watchers: task.watchers,
+      history: task.histories,
     };
   }
 }

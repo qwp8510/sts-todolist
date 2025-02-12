@@ -16,6 +16,10 @@ export class TaskMapper {
       entity.dueDate,
       entity.createdAt,
       entity.updatedAt,
+      entity.children?.map(TaskMapper.toDomain),
+      entity.assignees?.map(TaskAssigneeMapper.toDomain),
+      entity.watchers?.map(TaskWatcherMapper.toDomain),
+      entity.histories?.map(TaskHistoryMapper.toDomain),
     );
   }
 

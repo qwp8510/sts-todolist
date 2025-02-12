@@ -20,7 +20,8 @@ export interface ITaskRepository {
     status?: string;
     sortBy?: string;
     sortOrder?: 'ASC' | 'DESC';
-  }): Promise<Task[]> 
+  }): Promise<Task[]>;
+  findDetailById(taskId: number): Promise<Task>;
 }
 
 export interface ITaskService {
