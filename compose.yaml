@@ -7,6 +7,7 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    command: sh -c "npx typeorm-ts-node-commonjs migration:run -d dist/data-source.js && node dist/src/main.js"
     environment:
       DB_HOST: postgres
       DB_PORT: 5432
@@ -14,7 +15,7 @@ services:
       DB_PASSWORD: abc123
       DB_DATABASE: postgres
     ports:
-      - "3050:3000" 
+      - "3050:3050" 
     networks:
       - sts-proxy
 

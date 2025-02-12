@@ -19,7 +19,7 @@ COPY --from=builder /app/dist ./dist
 
 COPY --from=builder /app/public ./dist/public
 
-COPY --from=builder /app/dist/migration ./dist/migration
+COPY --from=builder /app/dist/migration ./migration
 
 COPY --from=builder /app/node_modules ./node_modules
 
