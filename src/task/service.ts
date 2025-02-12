@@ -156,7 +156,7 @@ export class TaskService implements ITaskService {
       // if update to completed, check if there is a parent => 
       // if all child tasks are completed, then parent task is automatically completed
       if (task.status === 'completed' && task.parentId) {
-        await this.checkAndCompleteParentIfAllChildrenDone(task.parentId);
+        await this.checkAndCompleteParentIfAllChildrenDone(task.parentId, task.id);
       }
     }
 
@@ -189,9 +189,9 @@ export class TaskService implements ITaskService {
   /**
    * If all child tasks under a parent are completed, then set the parent to completed
    */
-  private async checkAndCompleteParentIfAllChildrenDone(parentId: number) {
+  private async checkAndCompleteParentIfAllChildrenDone(parentId: number, currentId: number) {
     const children = await this.taskRepo.findByParentId(parentId);
-    const allDone = children.every(c => c.status === 'completed' || c.status === 'archived');
+    const allDone = children.every(c => c.id === currentId || c.status === 'completed' || c.status === 'archived');
     if (!allDone) return;
 
     const parent = await this.taskRepo.findById(parentId);
@@ -201,7 +201,7 @@ export class TaskService implements ITaskService {
     await this.taskRepo.update(parent);
 
     if (parent.parentId) {
-      await this.checkAndCompleteParentIfAllChildrenDone(parent.parentId);
+      await this.checkAndCompleteParentIfAllChildrenDone(parent.parentId, parent.id);
     }
   }
 
