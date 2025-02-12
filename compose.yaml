@@ -1,6 +1,23 @@
 version: "3"
 
 services:
+  app:
+    build: .
+    container_name: nest_app
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USERNAME: postgres
+      DB_PASSWORD: abc123
+      DB_DATABASE: postgres
+    ports:
+      - "3050:3000" 
+    networks:
+      - sts-proxy
+
   postgres:
     image: postgres:13
     restart: always
@@ -8,8 +25,6 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: abc123
       POSTGRES_DB: postgres
-    volumes:
-      - sts-db-data:/var/lib/postgresql/data
     ports:
       - "54322:5432"
     healthcheck:
@@ -33,8 +48,6 @@ services:
     networks:
       - sts-proxy
 
-volumes:
-  sts-db-data:
 networks:
   sts-proxy:
     driver: bridge
