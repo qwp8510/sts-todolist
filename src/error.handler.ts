@@ -16,7 +16,8 @@ export class AllExceptionsFilter implements ExceptionFilter {
     const request   = ctx.getRequest<Request>();
 
     // Default status code: If exception is HttpException, take its status, otherwise 500
-    const status =
+    const status = exception instanceof HttpException ? exception.getStatus() : HttpStatus.INTERNAL_SERVER_ERROR
+    const code =
       exception instanceof ClientException
         ? exception.code
         : "unknown error";
@@ -25,7 +26,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
     let errorResponse: any = {
       timestamp: new Date().toISOString(),
       path: request.url,
-      errorCode: status,
+      errorCode: code,
       message: 'Internal server error',
     };
 
@@ -49,9 +50,11 @@ export class AllExceptionsFilter implements ExceptionFilter {
       errorResponse.message = String(exception);
     }
 
-    response.status(
-      exception instanceof HttpException ? exception.getStatus() : HttpStatus.INTERNAL_SERVER_ERROR,
-    ).json(errorResponse);
+    if (status === HttpStatus.INTERNAL_SERVER_ERROR) {
+      response.status(status).send("internal server error");
+    } else {
+      response.status(status).json(errorResponse);
+    }
   }
 }
 
