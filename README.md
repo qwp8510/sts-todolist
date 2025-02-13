@@ -71,6 +71,12 @@ $ mau deploy
 
 ## Migrations
 ```bash
+# generate migration
 $ npx typeorm-ts-node-commonjs migration:generate migration/<> -d data-source.ts
 
+# upgrade
+$ npx typeorm-ts-node-commonjs migration:run -d data-source.ts
+
+# downgrade
+$ npx typeorm-ts-node-commonjs migration:revert -d data-source.ts
 ```
