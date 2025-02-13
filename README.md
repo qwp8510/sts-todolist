@@ -1,73 +1,73 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
-
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
-
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
-
-## Description
-
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
-
-## Project setup
-
+## Quick Start
 ```bash
-$ npm install
+docker-compose up -d
 ```
 
-## Compile and run the project
+frontent home page: http:0.0.0.0:3050   
+document page: http:0.0.0.0:3050/docs   
 
-```bash
-# development
-$ npm run start
+## 實現訊息提醒任務即將到期
+### schema design
+*Task 表新增* 
+- reminder_before  string(optional)  在到期前提醒設定 // hour, day, week
+- remind_at timestamp(optional)  通知時間
 
-# watch mode
-$ npm run start:dev
+*Notification 表*
+| 欄位           | 型別        | 說明                                                     |
+| -------------- | ----------- | -------------------------------------------------------- |
+| `id`          | Increment (PK) | 通知記錄唯一 ID                                          |
+| `user_id`     | INT         | 要通知的使用者（對應 users.id）                          |
+| `task_id`     | INT         | 通知所屬的任務（對應 tasks.id）                           |
+| `message`     | TEXT        | 通知內容                                                 |
+| `is_sent`     | BOOLEAN     | 是否已發送（若為 Email, push notification，需要知道是否送出） |
+| `created_at`  | TIMESTAMP   | 建立時間                                                 |
+| `updated_at`  | TIMESTAMP   | 更新時間       
 
-# production mode
-$ npm run start:prod
-```
+### How It Work
+1. 計算remind_at
+- 當使用者更新reminder_before時，計算出remind_at 的時間
+2. worker 定時任務
+- 每幾分鐘掃描一次，當remind_at <= 當前時間，表示需要通知
+3. 建立通知
+- 在資料庫建立一筆通知紀錄
+- 發送通知，可能使用websocket, Long polling 或是以郵件方式通知等
 
-## Run tests
+## 定時重複任務
+### schema design
+*Task 表新增* 
+- recurrence  string(optional)  重複週期設定 // daily, weekly, monthly...
+### How It Work
+1. 使用者透過介面設定recurrence 欄位
+2. worker 定時任務
+- 每幾分鐘掃描是否有已完成的任務並且recurrence不為null的
+- 獲取資料後計算下一次到期日期，並更新due_date 欄位
 
-```bash
-# unit tests
-$ npm run test
+## File Structure
+### backend
+src
+├── app
+│   ├── app.module                     root module
+│   ├── config                         env setup
+│   ├── main
+│   ├── error.handler
+│   ├── errors                         define error
+│   ├── auth                           auth module
+│   ├── task                           task module
+│   │   ├── controller                 Api endpoint
+│   │   ├── dto                        define api schema
+│   │   ├── entity                     define DB table
+│   │   ├── interface                  define service, repository interface
+│   │   ├── mapper                     db, domain model mapper
+│   │   ├── model                      domain model
+│   │   ├── module
+│   │   ├── repo                       repository implement
+│   │   ├── service                    service implement
+│   │   │
+│   ├── team                           team module
+│   ├── user                           user module
+├── public                             static file
+└── migrations                         migration files
 
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
-```
-
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ npm install -g mau
-$ mau deploy
-```
 
 ## Migrations
 ```bash
