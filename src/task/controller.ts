@@ -3,6 +3,8 @@ import { ITaskService } from './interface';
 import { Task } from './model';
 import { ClientException } from 'src/errors';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { CreateTaskDto, GetTaskDetailResponse, TaskResponse, UpdateTaskDto } from './dto';
+import { ApiOkResponse } from '@nestjs/swagger';
 
 @Controller('tasks')
 @UseGuards(JwtAuthGuard)
@@ -13,16 +15,14 @@ export class TaskController {
   ) {}
 
   @Post()
+  @ApiOkResponse({
+    description: 'create task',
+    type: TaskResponse,
+  })
   async createTask(
-    @Body() dto: {
-      teamId: number;
-      parentTaskId?: number;
-      title: string;
-      description?: string;
-      dueDate?: Date;
-    },
+    @Body() dto: CreateTaskDto,
     @Request() req,
-  ): Promise<Task> {
+  ): Promise<TaskResponse> {
     const userId = req.user.id;
     return this.taskService.createTask({
       teamId: dto.teamId,
@@ -35,21 +35,7 @@ export class TaskController {
   }
 
   @Patch(':id')
-  async updateTask(@Param('id') taskId: number, @Body() dto: {
-    title?: string;
-    description?: string;
-    dueDate?: string;
-
-    addAssignees?: number[];
-    removeAssignees?: number[];
-
-    addWatchers?: number[];
-    removeWatchers?: number[];
-
-    status?: string; // 'open', 'completed', 'archived'
-
-    comment?: string;
-  }, @Request() req) {
+  async updateTask(@Param('id') taskId: number, @Body() dto: UpdateTaskDto, @Request() req) {
     const userId = req.user.id;
     return this.taskService.updateTask(taskId, userId, {
       title: dto.title,
@@ -84,7 +70,12 @@ export class TaskController {
    *    - sortOrder: 'ASC' | 'DESC' (default: 'ASC')
   */
   @Get()
-  async getTasks(@Query() query, @Request() req) {
+  @ApiOkResponse({
+    description: 'get tasks',
+    type: TaskResponse,
+    isArray: true,
+  })
+  async getTasks(@Query() query, @Request() req): Promise<TaskResponse[]> {
     const userId = req.user.id;
     const {
       teamId,
@@ -117,7 +108,11 @@ export class TaskController {
   }
 
   @Get(':id')
-  async getTaskDetail(@Param('id') taskId: number, @Request() req) {
+  @ApiOkResponse({
+    description: 'get tasks',
+    type: GetTaskDetailResponse,
+  })
+  async getTaskDetail(@Param('id') taskId: number, @Request() req): Promise<GetTaskDetailResponse> {
     const userId = req.user.id;
     const detail = await this.taskService.getTaskDetail(taskId, userId);
     return {

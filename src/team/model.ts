@@ -1,4 +1,5 @@
 import { User } from "src/user/model";
+import { GetTeamMemberResponse } from "./dto";
 
 export class Team {
   public id: number;
@@ -56,7 +57,7 @@ export class TeamMember {
     this.updatedAt = new Date();
   }
 
-  toResponse() {
+  toResponse(): GetTeamMemberResponse {
     return {
       id: this.id,
       teamId: this.teamId,

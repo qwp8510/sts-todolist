@@ -1,7 +1,10 @@
 import { Controller, Get, Post, Delete, Param, Body, Inject, UseGuards, Request, ForbiddenException } from '@nestjs/common';
 import { ITeamService } from './interface';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { CreateTeamDto, GetTeamByIdResponse, GetTeamsResponse, InviteUserToTeamDto } from './dto';
 
+@ApiTags('teams')
 @Controller('teams')
 @UseGuards(JwtAuthGuard)
 export class TeamController {
@@ -11,14 +14,23 @@ export class TeamController {
   ) {}
 
   @Get()
-  async getAllTeams(@Request() req) {
+  @ApiOkResponse({
+    description: 'get all team list',
+    type: GetTeamsResponse,
+    isArray: true,
+  })
+  async getAllTeams(@Request() req): Promise<GetTeamsResponse[]> {
     const userId = req.user.id;
     const teams = await this.teamService.getAllTeamsForUser(userId);
     return teams;
   }
 
   @Get(':id')
-  async getTeamById(@Param('id') teamId: number, @Request() req) {
+  @ApiOkResponse({
+    description: 'get team by id',
+    type: GetTeamByIdResponse,
+  })
+  async getTeamById(@Param('id') teamId: number, @Request() req): Promise<GetTeamByIdResponse>  {
     const userId = req.user.id;
     const teamInfo = await this.teamService.getTeamWithMembers(teamId, userId);
     if (!teamInfo) {
@@ -33,7 +45,11 @@ export class TeamController {
 
   @UseGuards(JwtAuthGuard)
   @Post()
-  async createTeam(@Body() body: { name: string }, @Request() req) {
+  @ApiOkResponse({
+    description: 'create team',
+    type: GetTeamsResponse,
+  })
+  async createTeam(@Body() body: CreateTeamDto, @Request() req): Promise<GetTeamsResponse> {
     const user = req.user;
     return await this.teamService.createTeamForUser(body.name, user.id);
   }
@@ -41,7 +57,7 @@ export class TeamController {
   @Post(':id/invite')
   async inviteUserToTeam(
     @Param('id') teamId: number,
-    @Body() body: { username: string },
+    @Body() body: InviteUserToTeamDto,
     @Request() req,
   ) {
     const ownerId = req.user.id;

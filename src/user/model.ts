@@ -21,7 +21,7 @@ export class User {
     this.updatedAt = updatedAt || new Date();
   }
 
-  public toResponse(): Partial<User> {
+  public toResponse(): { id: number; username: string } {
     return {
       id: this.id,
       username: this.username,
