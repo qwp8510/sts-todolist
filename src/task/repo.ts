@@ -58,7 +58,7 @@ export class TaskRepository implements ITaskRepository {
   }
 
   async delete(id: number): Promise<void> {
-    await this.ormRepo.delete(id);
+    await this.ormRepo.softDelete(id);
   }
 
 
@@ -130,8 +130,12 @@ export class TaskRepository implements ITaskRepository {
         'assignees',
         'watchers',
         'histories',
+        'assignees.user',
+        'watchers.user',
+        'histories.user',
       ],
     });
+
     return TaskMapper.toDomain(entity);
   }
 }

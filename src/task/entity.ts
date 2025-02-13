@@ -7,6 +7,8 @@ import {
   ManyToOne,
   OneToMany,
   JoinColumn,
+  DeleteDateColumn,
+  Index,
 } from 'typeorm';
 import { UserEntity } from 'src/user/entity';
 import { TeamEntity } from 'src/team/entity';
@@ -21,6 +23,9 @@ export class TaskEntity {
   
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
+
+  @DeleteDateColumn({ name: 'deleted_at', nullable: true })
+  deletedAt: Date;
 
   @Column({ name: 'team_id', type: 'int' })
   teamId: number;
@@ -58,6 +63,7 @@ export class TaskEntity {
   status: string;
 
   @Column({ name: 'due_date', type: 'timestamp', nullable: true })
+  @Index()
   dueDate: Date;
 
   // Task assignees
@@ -86,6 +92,12 @@ export class TaskAssigneeEntity {
   @JoinColumn({ name: 'user_id' })
   user: UserEntity;
 
+  @Column({ name: 'task_id' })
+  taskId: number;
+
+  @Column({ name: 'user_id' })
+  userId: number;
+
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
   
@@ -106,6 +118,12 @@ export class TaskHistoryEntity {
   @ManyToOne(() => UserEntity, user => user.taskHistories, { nullable: true, onDelete: 'SET NULL' })
   @JoinColumn({ name: 'user_id' })
   user: UserEntity;
+
+  @Column({ name: 'task_id' })
+  taskId: number;
+
+  @Column({ name: 'user_id' })
+  userId: number;
 
   // Record action type, for example: 'CREATE', 'UPDATE', 'COMMENT'
   @Column({ length: 50 })
@@ -140,5 +158,11 @@ export class TaskWatcherEntity {
   @ManyToOne(() => UserEntity, user => user.taskWatchers, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id' })
   user: UserEntity;
+
+  @Column({ name: 'task_id' })
+  taskId: number;
+
+  @Column({ name: 'user_id' })
+  userId: number;
 }
 

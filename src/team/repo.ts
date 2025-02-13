@@ -48,7 +48,7 @@ export class TeamRepository implements ITeamRepository {
   }
 
   async delete(id: number): Promise<void> {
-    await this.ormRepository.delete(id);
+    await this.ormRepository.softDelete(id);
   }
 }
 

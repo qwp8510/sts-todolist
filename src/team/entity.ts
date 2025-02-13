@@ -6,6 +6,7 @@ import {
   UpdateDateColumn,
   OneToMany,
   ManyToOne,
+  DeleteDateColumn,
 } from 'typeorm';
 import { TaskEntity } from 'src/task/entity';
 import { UserEntity } from 'src/user/entity';
@@ -20,6 +21,9 @@ export class TeamEntity {
   
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
+
+  @DeleteDateColumn({ name: 'deleted_at', nullable: true })
+  deletedAt: Date;
 
   @Column()
   name: string;

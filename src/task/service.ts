@@ -240,7 +240,7 @@ export class TaskService implements ITaskService {
   async getTaskDetail(
     taskId: number, userId: number,
   ): Promise<{task: Task, children: Task[], assignees: TaskAssignee[], watchers: TaskWatcher[], history: TaskHistory[]}> {
-    const task = await this.taskRepo.findDetailById(taskId); // 新增的方法
+    const task = await this.taskRepo.findDetailById(taskId);
     if (!task) {
       throw new ClientException("task_not_found", "Task not found");
     }
